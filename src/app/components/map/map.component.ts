@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 })
 export class MapComponent implements OnInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
-  
+
   private map!: L.Map;
   private locationSubscription!: Subscription;
   private userMarker!: L.Marker;
@@ -76,20 +76,12 @@ export class MapComponent implements OnInit, OnDestroy {
 
   private updateMapLocation(location: LocationData): void {
     const latLng = L.latLng(location.latitude, location.longitude);
-    
+
     this.map.setView(latLng, 15);
-    
+
     this.userMarker.setLatLng(latLng);
     this.userMarker.addTo(this.map);
-    
-    const accuracyCircle = L.circle(latLng, {
-      radius: location.accuracy,
-      fillColor: '#3388ff',
-      fillOpacity: 0.2,
-      color: '#3388ff',
-      weight: 2,
-      opacity: 0.6
-    }).addTo(this.map);
+
   }
 
   retryLocation(): void {
