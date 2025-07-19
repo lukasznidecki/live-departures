@@ -1,0 +1,16 @@
+<div class="map-container">
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Getting your location...</p>
+  </div>
+  
+  <div class="error-overlay" *ngIf="error && !isLoading">
+    <div class="error-content">
+      <div class="error-icon">📍</div>
+      <p>{{ error }}</p>
+      <button class="retry-button" (click)="retryLocation()">Try Again</button>
+    </div>
+  </div>
+  
+  <div #mapContainer class="leaflet-map"></div>
+</div>
