@@ -1,3 +1,45 @@
-<app-map></app-map>
+<div class="tab-container">
+  <div class="tab-header">
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'todo'"
+      (click)="setActiveTab('todo')">
+<img class="tab-icon" src="assets/icons/tram.svg" alt="Tram">
+    </button>
+    <button 
+      class="tab-button"
+      [class.active]="activeTab === 'map'"
+      (click)="setActiveTab('map')">
+<img class="tab-icon" src="assets/icons/map.svg" alt="Map">
+    </button>
+  </div>
+  
+  <div class="tab-content">
+    <div class="tab-panel" [class.active]="activeTab === 'todo'">
+      <div class="todo-container">
+        <h2>Todo Liste</h2>
+        <ul class="todo-list">
+          <li class="todo-item" *ngFor="let todo of todos">
+            <input type="checkbox" [(ngModel)]="todo.completed" class="todo-checkbox">
+            <span [class.completed]="todo.completed">{{ todo.text }}</span>
+          </li>
+        </ul>
+        <div class="add-todo">
+          <input 
+            type="text" 
+            [(ngModel)]="newTodo" 
+            (keyup.enter)="addTodo()"
+            placeholder="Neue Aufgabe hinzufügen..."
+            class="todo-input">
+          <button (click)="addTodo()" class="add-button">+</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-panel" [class.active]="activeTab === 'map'">
+      <app-map></app-map>
+    </div>
+  </div>
+</div>
 
 <router-outlet />
