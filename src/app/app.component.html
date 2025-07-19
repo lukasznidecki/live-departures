@@ -16,10 +16,32 @@
 
   <div class="tab-content">
     <div class="tab-panel" [class.active]="activeTab === 'todo'">
-      <div class="todo-container">
-        <h2>Todo Liste</h2>
-
-
+      <div class="stops-container">
+        <h2>Nächste Haltestellen</h2>
+        
+        <div class="loading-overlay" *ngIf="isLoading">
+          <div class="loading-spinner"></div>
+          <p>Suche nächste Haltestellen...</p>
+        </div>
+        
+        <div class="error-overlay" *ngIf="error && !isLoading">
+          <div class="error-content">
+            <div class="error-icon">🚏</div>
+            <p>{{ error }}</p>
+            <button class="retry-button" (click)="retryLoadStops()">Erneut versuchen</button>
+          </div>
+        </div>
+        
+        <div class="stops-list" *ngIf="!isLoading && !error && nearestStops.length > 0">
+          <div class="stop-item" *ngFor="let stop of nearestStops; let i = index">
+            <div class="stop-rank">{{ i + 1 }}</div>
+            <div class="stop-info">
+              <h3 class="stop-name">{{ stop.name }}</h3>
+              <p class="stop-distance">{{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</p>
+            </div>
+            <div class="stop-icon">🚋</div>
+          </div>
+        </div>
       </div>
     </div>
 
