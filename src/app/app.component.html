@@ -18,12 +18,12 @@
     <div class="tab-panel" [class.active]="activeTab === 'todo'">
       <div class="stops-container">
         <h2>Nächste Haltestellen</h2>
-        
+
         <div class="loading-overlay" *ngIf="isLoading">
           <div class="loading-spinner"></div>
           <p>Suche nächste Haltestellen...</p>
         </div>
-        
+
         <div class="error-overlay" *ngIf="error && !isLoading">
           <div class="error-content">
             <div class="error-icon">🚏</div>
@@ -31,9 +31,9 @@
             <button class="retry-button" (click)="retryLoadStops()">Erneut versuchen</button>
           </div>
         </div>
-        
+
         <div class="stops-list" *ngIf="!isLoading && !error && nearestStops.length > 0">
-          <div class="stop-item" *ngFor="let stop of nearestStops; let i = index" 
+          <div class="stop-item" *ngFor="let stop of nearestStops; let i = index"
                [class.expanded]="stop.expanded"
                (click)="toggleStopExpansion(i)">
             <div class="stop-info">
@@ -44,7 +44,7 @@
                 </div>
                 <div class="expand-icon" [class.rotated]="stop.expanded">▼</div>
               </div>
-              
+
               <div class="stop-directions" *ngIf="!stop.loadingDirections && stop.directions && stop.directions.length > 0">
                 <p class="directions-label">Richtungen:</p>
                 <div class="directions-list">
@@ -61,13 +61,17 @@
                   <div class="departures-spinner"></div>
                   <span class="departures-loading-text">Lade Abfahrten...</span>
                 </div>
-                
+
                 <div class="departures-list" *ngIf="!stop.loadingDepartures && stop.departures && stop.departures.length > 0">
                   <h4 class="departures-title">Abfahrten:</h4>
                   <div class="departure-item" *ngFor="let departure of stop.departures">
                     <div class="departure-line">{{ departure.line }}</div>
                     <div class="departure-direction">{{ departure.direction }}</div>
-                    <div class="departure-vehicle">Nr. {{ departure.vehicleNumber }}</div>
+                    <div class="departure-vehicle clickable"
+                         (click)="copyToClipboard(departure.vehicleNumber, $event)"
+                         title="Klicken zum Kopieren">
+                      {{ departure.vehicleNumber }}
+                    </div>
                     <div class="departure-time">{{ departure.departureTime }}</div>
                   </div>
                 </div>

@@ -120,4 +120,26 @@ export class AppComponent implements OnInit {
       };
     }
   }
+
+  async copyToClipboard(text: string, event: Event) {
+    event.stopPropagation();
+    
+    try {
+      await navigator.clipboard.writeText(text);
+      
+      // Visual feedback
+      const target = event.target as HTMLElement;
+      const originalText = target.innerText;
+      target.innerText = 'Kopiert!';
+      target.style.background = '#4caf50';
+      
+      setTimeout(() => {
+        target.innerText = originalText;
+        target.style.background = '';
+      }, 1000);
+      
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
+  }
 }

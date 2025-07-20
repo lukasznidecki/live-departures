@@ -25,6 +25,7 @@ export interface StopTime {
   planned_departure_time: string;
   predicted_departure_timestamp?: number;
   trip_id: string;
+  kmk_id: string;
 }
 
 export interface Departure {
@@ -106,7 +107,7 @@ export class TramStopsService {
             .map(stopTime => ({
               line: stopTime.route_short_name,
               direction: stopTime.trip_headsign,
-              vehicleNumber: stopTime.trip_id.split('-').pop() || '',
+              vehicleNumber: stopTime.kmk_id,
               departureTime: stopTime.planned_departure_time
             }))
             .sort((a, b) => a.departureTime.localeCompare(b.departureTime));
