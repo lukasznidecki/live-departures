@@ -44,24 +44,29 @@ export class AppComponent implements OnInit {
         const { latitude, longitude } = position;
         this.tramStopsService.getNearestStops(latitude, longitude, 5).subscribe({
           next: (stops) => {
-            this.nearestStops = stops;
+            this.nearestStops = stops.map(stop => ({
+              ...stop,
+              loadingDirections: true
+            }));
             
-            const directionsRequests = stops.map(stop =>
-              this.tramStopsService.getStopTimes(stop.stop_name, stop.stop_num)
-            );
-
             this.isLoading = false;
 
-            forkJoin(directionsRequests).subscribe({
-              next: (directionsArray) => {
-                this.nearestStops = this.nearestStops.map((stop, index) => ({
-                  ...stop,
-                  directions: directionsArray[index]
-                }));
-              },
-              error: (err) => {
-                console.error('Error loading directions:', err);
-              }
+            stops.forEach((stop, index) => {
+              this.tramStopsService.getStopTimes(stop.stop_name, stop.stop_num).subscribe({
+                next: (directions) => {
+                  this.nearestStops[index] = {
+                    ...this.nearestStops[index],
+                    directions: directions,
+                    loadingDirections: false
+                  };
+                },
+                error: (err) => {
+                  this.nearestStops[index] = {
+                    ...this.nearestStops[index],
+                    loadingDirections: false
+                  };
+                }
+              });
             });
           },
           error: (err) => {

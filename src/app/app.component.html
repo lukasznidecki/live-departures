@@ -37,11 +37,15 @@
             <div class="stop-info">
               <h3 class="stop-name">{{ stop.stop_name }} {{ stop.stop_num }}</h3>
               <p class="stop-distance">{{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</p>
-              <div class="stop-directions" *ngIf="stop.directions && stop.directions.length > 0">
+              <div class="stop-directions" *ngIf="!stop.loadingDirections && stop.directions && stop.directions.length > 0">
                 <p class="directions-label">Richtungen:</p>
                 <div class="directions-list">
                   <span class="direction-item" *ngFor="let direction of stop.directions">{{ direction }}</span>
                 </div>
+              </div>
+              <div class="directions-loading" *ngIf="stop.loadingDirections">
+                <div class="directions-spinner"></div>
+                <span class="directions-loading-text">Lade Richtungen...</span>
               </div>
             </div>
             <div class="stop-icon">🚋</div>

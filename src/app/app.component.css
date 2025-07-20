@@ -311,3 +311,30 @@
   font-weight: 500;
   white-space: nowrap;
 }
+
+.directions-loading {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.directions-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #667eea;
+  border-radius: 50%;
+  animation: directionsSpinAnimation 1s linear infinite;
+}
+
+@keyframes directionsSpinAnimation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.directions-loading-text {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}

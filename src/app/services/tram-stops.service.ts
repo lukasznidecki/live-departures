@@ -11,6 +11,7 @@ export interface TramStop {
   bus: boolean;
   distance?: number;
   directions?: string[];
+  loadingDirections?: boolean;
 }
 
 export interface StopTime {
