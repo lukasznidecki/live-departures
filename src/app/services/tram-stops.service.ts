@@ -3,11 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface TramStop {
-  id: string;
-  name: string;
-  lat: number;
-  lon: number;
+  stop_num: string;
+  stop_name: string;
+  stop_lat: number;
+  stop_lon: number;
+  tram: boolean;
+  bus: boolean;
   distance?: number;
+}
+
+export interface ApiResponse {
+  stops: TramStop[];
 }
 
 @Injectable({
@@ -19,7 +25,12 @@ export class TramStopsService {
   constructor(private http: HttpClient) { }
 
   getStops(): Observable<TramStop[]> {
-    return this.http.get<TramStop[]>(this.apiUrl);
+    return new Observable(observer => {
+      this.http.get<ApiResponse>(this.apiUrl).subscribe(response => {
+        observer.next(response.stops);
+        observer.complete();
+      });
+    });
   }
 
   calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -43,7 +54,7 @@ export class TramStopsService {
       this.getStops().subscribe(stops => {
         const stopsWithDistance = stops.map(stop => ({
           ...stop,
-          distance: this.calculateDistance(userLat, userLon, stop.lat, stop.lon)
+          distance: this.calculateDistance(userLat, userLon, stop.stop_lat, stop.stop_lon)
         }));
 
         const nearestStops = stopsWithDistance
