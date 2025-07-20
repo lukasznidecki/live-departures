@@ -17,8 +17,6 @@
   <div class="tab-content">
     <div class="tab-panel" [class.active]="activeTab === 'todo'">
       <div class="stops-container">
-        <h2>Nächste Haltestellen</h2>
-
         <div class="loading-overlay" *ngIf="isLoading">
           <div class="loading-spinner"></div>
           <p>Suche nächste Haltestellen...</p>
@@ -40,7 +38,7 @@
               <div class="stop-header">
                 <div class="stop-main-info">
                   <h3 class="stop-name">
-                    {{ stop.stop_name }} {{ stop.stop_num }} - 
+                    {{ stop.stop_name }} {{ stop.stop_num }} -
                     <span class="stop-distance">{{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</span>
                   </h3>
                 </div>
