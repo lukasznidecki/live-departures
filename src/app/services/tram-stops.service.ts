@@ -10,6 +10,18 @@ export interface TramStop {
   tram: boolean;
   bus: boolean;
   distance?: number;
+  directions?: string[];
+}
+
+export interface StopTime {
+  category: string;
+  trip_headsign: string;
+  route_short_name: string;
+  stop_num: string;
+}
+
+export interface StopTimesResponse {
+  current_stop_times: StopTime[];
 }
 
 export interface ApiResponse {
@@ -47,6 +59,27 @@ export class TramStopsService {
 
   private toRadians(degree: number): number {
     return degree * (Math.PI / 180);
+  }
+
+  getStopTimes(stopName: string, stopNum: string): Observable<string[]> {
+    const url = `${this.apiUrl}/${encodeURIComponent(stopName)}/current_stop_times`;
+    return new Observable(observer => {
+      this.http.get<StopTimesResponse>(url).subscribe({
+        next: (response) => {
+          const tramDirections = response.current_stop_times
+            .filter(stopTime => stopTime.category === 'tram' && stopTime.stop_num === stopNum)
+            .map(stopTime => stopTime.trip_headsign)
+            .filter((direction, index, array) => array.indexOf(direction) === index);
+          
+          observer.next(tramDirections);
+          observer.complete();
+        },
+        error: (err) => {
+          observer.next([]);
+          observer.complete();
+        }
+      });
+    });
   }
 
   getNearestStops(userLat: number, userLon: number, limit: number = 5): Observable<TramStop[]> {

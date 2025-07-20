@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MapComponent } from './components/map/map.component';
 import { TramStopsService, TramStop } from './services/tram-stops.service';
 import { GeolocationService } from './services/geolocation.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -43,8 +44,23 @@ export class AppComponent implements OnInit {
         const { latitude, longitude } = position;
         this.tramStopsService.getNearestStops(latitude, longitude, 5).subscribe({
           next: (stops) => {
-            this.nearestStops = stops;
-            this.isLoading = false;
+            const directionsRequests = stops.map(stop =>
+              this.tramStopsService.getStopTimes(stop.stop_name, stop.stop_num)
+            );
+
+            forkJoin(directionsRequests).subscribe({
+              next: (directionsArray) => {
+                this.nearestStops = stops.map((stop, index) => ({
+                  ...stop,
+                  directions: directionsArray[index]
+                }));
+                this.isLoading = false;
+              },
+              error: (err) => {
+                this.nearestStops = stops;
+                this.isLoading = false;
+              }
+            });
           },
           error: (err) => {
             this.error = 'Fehler beim Laden der Haltestellen';

@@ -282,3 +282,32 @@
   opacity: 1;
   transform: scale(1.1);
 }
+
+.stop-directions {
+  margin-top: 8px;
+}
+
+.directions-label {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.directions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.direction-item {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
