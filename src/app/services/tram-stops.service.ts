@@ -34,6 +34,7 @@ export interface Departure {
   vehicleNumber: string;
   departureTime: string;
   minutesUntilDeparture: number;
+  departureTimestamp?: number;
 }
 
 export interface StopTimesResponse {
@@ -86,7 +87,7 @@ export class TramStopsService {
             .filter(stopTime => stopTime.category === 'tram' && stopTime.stop_num === stopNum)
             .map(stopTime => stopTime.trip_headsign)
             .filter((direction, index, array) => array.indexOf(direction) === index);
-          
+
           observer.next(tramDirections);
           observer.complete();
         },
@@ -104,30 +105,50 @@ export class TramStopsService {
       this.http.get<StopTimesResponse>(url).subscribe({
         next: (response) => {
           const now = new Date();
-          const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
-          
+          const currentTimestamp = Math.floor(now.getTime() / 1000);
+          const maxTimestamp = currentTimestamp + (60 * 60);
+
           const tramDepartures = response.current_stop_times
             .filter(stopTime => stopTime.category === 'tram' && stopTime.stop_num === stopNum)
             .map(stopTime => {
-              const [hours, minutes] = stopTime.planned_departure_time.split(':').map(Number);
-              const departureTimeMinutes = hours * 60 + minutes;
-              let minutesUntil = departureTimeMinutes - currentTimeMinutes;
+              let departureTimestamp: number;
+              let departureTime: string;
               
-              // Handle next day departures
-              if (minutesUntil < 0) {
-                minutesUntil += 24 * 60;
+              if (stopTime.predicted_departure_timestamp) {
+                departureTimestamp = stopTime.predicted_departure_timestamp;
+                const predictedDate = new Date(departureTimestamp * 1000);
+                departureTime = predictedDate.toLocaleTimeString('en-GB', { 
+                  hour: '2-digit', 
+                  minute: '2-digit',
+                  hour12: false 
+                });
+              } else {
+                const [hours, minutes] = stopTime.planned_departure_time.split(':').map(Number);
+                const plannedDate = new Date(now);
+                plannedDate.setHours(hours, minutes, 0, 0);
+                
+                if (plannedDate.getTime() < now.getTime()) {
+                  plannedDate.setDate(plannedDate.getDate() + 1);
+                }
+                
+                departureTimestamp = Math.floor(plannedDate.getTime() / 1000);
+                departureTime = stopTime.planned_departure_time;
               }
-              
+
+              const minutesUntil = Math.round((departureTimestamp - currentTimestamp) / 60);
+
               return {
                 line: stopTime.route_short_name,
                 direction: stopTime.trip_headsign,
                 vehicleNumber: stopTime.kmk_id,
-                departureTime: stopTime.planned_departure_time,
-                minutesUntilDeparture: minutesUntil
+                departureTime: departureTime,
+                minutesUntilDeparture: minutesUntil,
+                departureTimestamp: departureTimestamp
               };
             })
+            .filter(departure => departure.departureTimestamp <= maxTimestamp && departure.minutesUntilDeparture >= 0)
             .sort((a, b) => a.minutesUntilDeparture - b.minutesUntilDeparture);
-          
+
           observer.next(tramDepartures);
           observer.complete();
         },
