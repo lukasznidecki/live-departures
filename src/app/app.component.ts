@@ -133,11 +133,20 @@ export class AppComponent implements OnInit {
         }
       });
     } else {
-      // Collapsing
+      // Collapsing - start collapse animation
       this.nearestStops[stopIndex] = {
         ...stop,
-        expanded: false
+        collapsing: true
       };
+      
+      // After animation completes, set expanded to false
+      setTimeout(() => {
+        this.nearestStops[stopIndex] = {
+          ...this.nearestStops[stopIndex],
+          expanded: false,
+          collapsing: false
+        };
+      }, 300); // Match the CSS animation duration
     }
   }
 

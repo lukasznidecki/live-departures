@@ -62,7 +62,9 @@
                 <span class="directions-loading-text">Lade Richtungen...</span>
               </div>
 
-              <div class="departures-section" *ngIf="stop.expanded">
+              <div class="departures-section" 
+                   [class.collapsing]="stop.collapsing"
+                   *ngIf="stop.expanded || stop.collapsing">
                 <div class="departures-loading" *ngIf="stop.loadingDepartures">
                   <div class="departures-spinner"></div>
                   <span class="departures-loading-text">Lade Abfahrten...</span>

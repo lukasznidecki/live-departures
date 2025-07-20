@@ -14,6 +14,7 @@ export interface TransportStop {
   directions?: string[];
   loadingDirections?: boolean;
   expanded?: boolean;
+  collapsing?: boolean;
   departures?: Departure[];
   loadingDepartures?: boolean;
 }
