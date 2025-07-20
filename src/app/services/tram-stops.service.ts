@@ -14,7 +14,7 @@ export interface TramStop {
   providedIn: 'root'
 })
 export class TramStopsService {
-  private apiUrl = 'https://tomekzaw-ttss-gtfs.herokuapp.com/api/stops';
+  private apiUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/stops';
 
   constructor(private http: HttpClient) { }
 
@@ -26,9 +26,9 @@ export class TramStopsService {
     const R = 6371; // Earth's radius in kilometers
     const dLat = this.toRadians(lat2 - lat1);
     const dLon = this.toRadians(lon2 - lon1);
-    const a = 
+    const a =
       Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) * 
+      Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) *
       Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
@@ -45,11 +45,11 @@ export class TramStopsService {
           ...stop,
           distance: this.calculateDistance(userLat, userLon, stop.lat, stop.lon)
         }));
-        
+
         const nearestStops = stopsWithDistance
           .sort((a, b) => a.distance! - b.distance!)
           .slice(0, limit);
-          
+
         observer.next(nearestStops);
         observer.complete();
       });
