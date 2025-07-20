@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:uxwing.com)",
+      "WebFetch(domain:www.svgrepo.com)",
+      "Bash(npm install:*)",
+      "Bash(wrangler login:*)",
+      "Bash(wrangler deploy:*)",
+      "WebFetch(domain:mpk-gtfs-proxy.lnidecki.workers.dev)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(ng add:*)",
+      "Bash(ng build:*)",
+      "Bash(wrangler:*)"
+    ],
+    "deny": []
+  }
+}
