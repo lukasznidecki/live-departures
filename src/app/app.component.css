@@ -204,8 +204,7 @@
 }
 
 .stop-item {
-  display: flex;
-  align-items: center;
+  display: block;
   padding: 16px;
   background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
   border-radius: 12px;
@@ -254,33 +253,14 @@
 }
 
 .stop-info {
-  flex: 1;
+  width: 100%;
 }
 
 .stop-name {
-  margin: 0 0 4px 0;
-  font-size: 18px;
+  margin: 0;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
-}
-
-.stop-distance {
-  margin: 0;
-  font-size: 14px;
-  color: #666;
-  font-weight: 500;
-}
-
-.stop-icon {
-  font-size: 24px;
-  margin-left: 16px;
-  opacity: 0.7;
-  transition: all 0.3s ease;
-}
-
-.stop-item:hover .stop-icon {
-  opacity: 1;
-  transform: scale(1.1);
 }
 
 .stop-directions {
@@ -346,7 +326,7 @@
 .stop-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
 }
 

@@ -39,8 +39,7 @@
             <div class="stop-info">
               <div class="stop-header">
                 <div class="stop-main-info">
-                  <h3 class="stop-name">{{ stop.stop_name }} {{ stop.stop_num }}</h3>
-                  <p class="stop-distance">{{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</p>
+                  <h3 class="stop-name">{{ stop.stop_name }} {{ stop.stop_num }} - {{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</h3>
                 </div>
                 <div class="expand-icon" [class.rotated]="stop.expanded">▼</div>
               </div>
@@ -81,7 +80,6 @@
                 </div>
               </div>
             </div>
-            <div class="stop-icon">🚋</div>
           </div>
         </div>
       </div>
