@@ -263,6 +263,12 @@
   color: #333;
 }
 
+.stop-distance {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
 .stop-directions {
   margin-top: 8px;
 }
