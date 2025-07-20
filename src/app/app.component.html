@@ -34,7 +34,6 @@
         
         <div class="stops-list" *ngIf="!isLoading && !error && nearestStops.length > 0">
           <div class="stop-item" *ngFor="let stop of nearestStops; let i = index">
-            <div class="stop-rank">{{ i + 1 }}</div>
             <div class="stop-info">
               <h3 class="stop-name">{{ stop.stop_name }} {{ stop.stop_num }}</h3>
               <p class="stop-distance">{{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</p>
