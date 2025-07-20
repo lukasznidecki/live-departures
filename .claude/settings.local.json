@@ -11,7 +11,8 @@
       "Bash(mv:*)",
       "Bash(ng add:*)",
       "Bash(ng build:*)",
-      "Bash(wrangler:*)"
+      "Bash(wrangler:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": []
   }

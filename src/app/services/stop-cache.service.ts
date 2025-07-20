@@ -11,11 +11,16 @@ export class StopCacheService {
   private stopsCache: TransportStop[] = [];
   private isLoaded = false;
   private loadingSubject = new BehaviorSubject<boolean>(false);
+  private readonly STORAGE_KEY = 'mpk_stops_cache';
+  private readonly TIMESTAMP_KEY = 'mpk_stops_timestamp';
+  private readonly CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.loadFromLocalStorage();
+  }
 
   loadStops(): Observable<TransportStop[]> {
-    if (this.isLoaded) {
+    if (this.isLoaded && !this.shouldUpdateCache()) {
       return of(this.stopsCache);
     }
 
@@ -38,6 +43,7 @@ export class StopCacheService {
         next: (response) => {
           this.stopsCache = response.stops;
           this.isLoaded = true;
+          this.saveToLocalStorage();
           this.loadingSubject.next(false);
           observer.next(this.stopsCache);
           observer.complete();
@@ -59,5 +65,41 @@ export class StopCacheService {
 
   isStopsLoaded(): boolean {
     return this.isLoaded;
+  }
+
+  private loadFromLocalStorage(): void {
+    try {
+      const cachedData = localStorage.getItem(this.STORAGE_KEY);
+      const timestamp = localStorage.getItem(this.TIMESTAMP_KEY);
+      
+      if (cachedData && timestamp && !this.shouldUpdateCache()) {
+        this.stopsCache = JSON.parse(cachedData);
+        this.isLoaded = true;
+      }
+    } catch (error) {
+      console.warn('Failed to load stops from localStorage:', error);
+    }
+  }
+
+  private saveToLocalStorage(): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.stopsCache));
+      localStorage.setItem(this.TIMESTAMP_KEY, Date.now().toString());
+    } catch (error) {
+      console.warn('Failed to save stops to localStorage:', error);
+    }
+  }
+
+  private shouldUpdateCache(): boolean {
+    try {
+      const timestamp = localStorage.getItem(this.TIMESTAMP_KEY);
+      if (!timestamp) return true;
+      
+      const lastUpdate = parseInt(timestamp, 10);
+      const now = Date.now();
+      return (now - lastUpdate) > this.CACHE_DURATION;
+    } catch (error) {
+      return true;
+    }
   }
 }
