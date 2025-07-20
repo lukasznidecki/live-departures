@@ -25,7 +25,7 @@
       <div class="stops-container">
         <div class="loading-overlay" *ngIf="isLoading">
           <div class="loading-spinner"></div>
-          <p>Suche nächste Haltestellen...</p>
+          <p>{{ loadingMessage }}</p>
         </div>
 
         <div class="error-overlay" *ngIf="error && !isLoading">

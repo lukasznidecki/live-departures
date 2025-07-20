@@ -21,7 +21,9 @@ export class AppComponent implements OnInit {
   transportTab: 'tram' | 'bus' = 'tram';
   nearestStops: TransportStop[] = [];
   isLoading = false;
+  isLoadingLocation = false;
   error: string | null = null;
+  loadingMessage = '';
 
   constructor(
     private tramStopsService: TramStopsService,
@@ -46,10 +48,15 @@ export class AppComponent implements OnInit {
 
   loadNearestStops() {
     this.isLoading = true;
+    this.isLoadingLocation = true;
     this.error = null;
+    this.loadingMessage = 'Ermittle Standort...';
 
     this.geolocationService.getCurrentPosition().subscribe({
       next: (position) => {
+        this.isLoadingLocation = false;
+        this.loadingMessage = 'Suche nächste Haltestellen...';
+        
         const { latitude, longitude } = position;
         this.tramStopsService.getNearestStops(latitude, longitude, 5, this.transportTab).subscribe({
           next: (stops) => {
@@ -59,6 +66,7 @@ export class AppComponent implements OnInit {
             }));
             
             this.isLoading = false;
+            this.loadingMessage = '';
 
             stops.forEach((stop, index) => {
               this.tramStopsService.getStopTimes(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
@@ -81,12 +89,15 @@ export class AppComponent implements OnInit {
           error: (err) => {
             this.error = 'Fehler beim Laden der Haltestellen';
             this.isLoading = false;
+            this.loadingMessage = '';
           }
         });
       },
       error: (err) => {
         this.error = 'Standort konnte nicht ermittelt werden';
         this.isLoading = false;
+        this.isLoadingLocation = false;
+        this.loadingMessage = '';
       }
     });
   }
