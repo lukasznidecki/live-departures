@@ -74,6 +74,7 @@
                     <div class="departure-line">{{ departure.line }}</div>
                     <div class="departure-direction">{{ departure.direction }}</div>
                     <div class="departure-vehicle clickable"
+                         *ngIf="departure.vehicleNumber && departure.vehicleNumber.trim() !== ''"
                          (click)="copyToClipboard(departure.vehicleNumber, $event)"
                          title="Klicken zum Kopieren">
                       {{ departure.vehicleNumber }}
