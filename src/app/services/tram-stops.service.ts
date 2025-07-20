@@ -33,6 +33,7 @@ export interface Departure {
   direction: string;
   vehicleNumber: string;
   departureTime: string;
+  minutesUntilDeparture: number;
 }
 
 export interface StopTimesResponse {
@@ -102,15 +103,30 @@ export class TramStopsService {
     return new Observable(observer => {
       this.http.get<StopTimesResponse>(url).subscribe({
         next: (response) => {
+          const now = new Date();
+          const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+          
           const tramDepartures = response.current_stop_times
             .filter(stopTime => stopTime.category === 'tram' && stopTime.stop_num === stopNum)
-            .map(stopTime => ({
-              line: stopTime.route_short_name,
-              direction: stopTime.trip_headsign,
-              vehicleNumber: stopTime.kmk_id,
-              departureTime: stopTime.planned_departure_time
-            }))
-            .sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+            .map(stopTime => {
+              const [hours, minutes] = stopTime.planned_departure_time.split(':').map(Number);
+              const departureTimeMinutes = hours * 60 + minutes;
+              let minutesUntil = departureTimeMinutes - currentTimeMinutes;
+              
+              // Handle next day departures
+              if (minutesUntil < 0) {
+                minutesUntil += 24 * 60;
+              }
+              
+              return {
+                line: stopTime.route_short_name,
+                direction: stopTime.trip_headsign,
+                vehicleNumber: stopTime.kmk_id,
+                departureTime: stopTime.planned_departure_time,
+                minutesUntilDeparture: minutesUntil
+              };
+            })
+            .sort((a, b) => a.minutesUntilDeparture - b.minutesUntilDeparture);
           
           observer.next(tramDepartures);
           observer.complete();
