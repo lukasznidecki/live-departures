@@ -58,6 +58,7 @@ export class TramStopsService {
         }));
 
         const nearestStops = stopsWithDistance
+          .filter(stop => stop.tram)
           .sort((a, b) => a.distance! - b.distance!)
           .slice(0, limit);
 
