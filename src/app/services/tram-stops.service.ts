@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface TramStop {
+export interface TransportStop {
   stop_num: string;
   stop_name: string;
   stop_lat: number;
@@ -16,6 +16,8 @@ export interface TramStop {
   departures?: Departure[];
   loadingDepartures?: boolean;
 }
+
+export interface TramStop extends TransportStop {}
 
 export interface StopTime {
   category: string;
@@ -42,7 +44,7 @@ export interface StopTimesResponse {
 }
 
 export interface ApiResponse {
-  stops: TramStop[];
+  stops: TransportStop[];
 }
 
 @Injectable({
@@ -53,7 +55,7 @@ export class TramStopsService {
 
   constructor(private http: HttpClient) { }
 
-  getStops(): Observable<TramStop[]> {
+  getStops(): Observable<TransportStop[]> {
     return new Observable(observer => {
       this.http.get<ApiResponse>(this.apiUrl).subscribe(response => {
         observer.next(response.stops);
@@ -78,17 +80,17 @@ export class TramStopsService {
     return degree * (Math.PI / 180);
   }
 
-  getStopTimes(stopName: string, stopNum: string): Observable<string[]> {
+  getStopTimes(stopName: string, stopNum: string, category: 'tram' | 'bus' = 'tram'): Observable<string[]> {
     const url = `${this.apiUrl}/${encodeURIComponent(stopName)}/current_stop_times`;
     return new Observable(observer => {
       this.http.get<StopTimesResponse>(url).subscribe({
         next: (response) => {
-          const tramDirections = response.current_stop_times
-            .filter(stopTime => stopTime.category === 'tram' && stopTime.stop_num === stopNum)
+          const directions = response.current_stop_times
+            .filter(stopTime => stopTime.category === category && stopTime.stop_num === stopNum)
             .map(stopTime => stopTime.trip_headsign)
             .filter((direction, index, array) => array.indexOf(direction) === index);
 
-          observer.next(tramDirections);
+          observer.next(directions);
           observer.complete();
         },
         error: (err) => {
@@ -99,7 +101,7 @@ export class TramStopsService {
     });
   }
 
-  getDepartures(stopName: string, stopNum: string): Observable<Departure[]> {
+  getDepartures(stopName: string, stopNum: string, category: 'tram' | 'bus' = 'tram'): Observable<Departure[]> {
     const url = `${this.apiUrl}/${encodeURIComponent(stopName)}/current_stop_times`;
     return new Observable(observer => {
       this.http.get<StopTimesResponse>(url).subscribe({
@@ -108,8 +110,8 @@ export class TramStopsService {
           const currentTimestamp = Math.floor(now.getTime() / 1000);
           const maxTimestamp = currentTimestamp + (60 * 60);
 
-          const tramDepartures = response.current_stop_times
-            .filter(stopTime => stopTime.category === 'tram' && stopTime.stop_num === stopNum)
+          const departures = response.current_stop_times
+            .filter(stopTime => stopTime.category === category && stopTime.stop_num === stopNum)
             .map(stopTime => {
               let departureTimestamp: number;
               let departureTime: string;
@@ -149,7 +151,7 @@ export class TramStopsService {
             .filter(departure => departure.departureTimestamp <= maxTimestamp && departure.minutesUntilDeparture >= 0)
             .sort((a, b) => a.minutesUntilDeparture - b.minutesUntilDeparture);
 
-          observer.next(tramDepartures);
+          observer.next(departures);
           observer.complete();
         },
         error: (err) => {
@@ -160,7 +162,7 @@ export class TramStopsService {
     });
   }
 
-  getNearestStops(userLat: number, userLon: number, limit: number = 5): Observable<TramStop[]> {
+  getNearestStops(userLat: number, userLon: number, limit: number = 5, category: 'tram' | 'bus' = 'tram'): Observable<TransportStop[]> {
     return new Observable(observer => {
       this.getStops().subscribe(stops => {
         const stopsWithDistance = stops.map(stop => ({
@@ -169,7 +171,7 @@ export class TramStopsService {
         }));
 
         const nearestStops = stopsWithDistance
-          .filter(stop => stop.tram)
+          .filter(stop => category === 'tram' ? stop.tram : stop.bus)
           .sort((a, b) => a.distance! - b.distance!)
           .slice(0, limit);
 

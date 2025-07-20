@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MapComponent } from './components/map/map.component';
-import { TramStopsService, TramStop } from './services/tram-stops.service';
+import { TramStopsService, TransportStop } from './services/tram-stops.service';
 import { GeolocationService } from './services/geolocation.service';
 import { forkJoin } from 'rxjs';
 
@@ -17,8 +17,9 @@ import { forkJoin } from 'rxjs';
 })
 export class AppComponent implements OnInit {
   title = 'location-map-app';
-  activeTab: 'todo' | 'map' = 'todo';
-  nearestStops: TramStop[] = [];
+  activeTab: 'tram' | 'bus' | 'map' = 'tram';
+  transportTab: 'tram' | 'bus' = 'tram';
+  nearestStops: TransportStop[] = [];
   isLoading = false;
   error: string | null = null;
 
@@ -31,8 +32,16 @@ export class AppComponent implements OnInit {
     this.loadNearestStops();
   }
 
-  setActiveTab(tab: 'todo' | 'map') {
+  setActiveTab(tab: 'tram' | 'bus' | 'map') {
     this.activeTab = tab;
+    if (tab !== 'map') {
+      this.setTransportTab(tab);
+    }
+  }
+
+  setTransportTab(tab: 'tram' | 'bus') {
+    this.transportTab = tab;
+    this.loadNearestStops();
   }
 
   loadNearestStops() {
@@ -42,7 +51,7 @@ export class AppComponent implements OnInit {
     this.geolocationService.getCurrentPosition().subscribe({
       next: (position) => {
         const { latitude, longitude } = position;
-        this.tramStopsService.getNearestStops(latitude, longitude, 5).subscribe({
+        this.tramStopsService.getNearestStops(latitude, longitude, 5, this.transportTab).subscribe({
           next: (stops) => {
             this.nearestStops = stops.map(stop => ({
               ...stop,
@@ -52,7 +61,7 @@ export class AppComponent implements OnInit {
             this.isLoading = false;
 
             stops.forEach((stop, index) => {
-              this.tramStopsService.getStopTimes(stop.stop_name, stop.stop_num).subscribe({
+              this.tramStopsService.getStopTimes(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
                 next: (directions) => {
                   this.nearestStops[index] = {
                     ...this.nearestStops[index],
@@ -97,7 +106,7 @@ export class AppComponent implements OnInit {
         loadingDepartures: true
       };
 
-      this.tramStopsService.getDepartures(stop.stop_name, stop.stop_num).subscribe({
+      this.tramStopsService.getDepartures(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
         next: (departures) => {
           this.nearestStops[stopIndex] = {
             ...this.nearestStops[stopIndex],

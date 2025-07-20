@@ -2,9 +2,15 @@
   <div class="tab-header">
     <button
       class="tab-button"
-      [class.active]="activeTab === 'todo'"
-      (click)="setActiveTab('todo')">
+      [class.active]="activeTab === 'tram'"
+      (click)="setActiveTab('tram')">
       <img class="tab-icon" src="assets/icons/tram.svg" alt="Tram">
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'bus'"
+      (click)="setActiveTab('bus')">
+      <img class="tab-icon" src="assets/icons/bus.svg" alt="Bus">
     </button>
     <button
       class="tab-button"
@@ -15,7 +21,7 @@
   </div>
 
   <div class="tab-content">
-    <div class="tab-panel" [class.active]="activeTab === 'todo'">
+    <div class="tab-panel" [class.active]="activeTab === 'tram' || activeTab === 'bus'">
       <div class="stops-container">
         <div class="loading-overlay" *ngIf="isLoading">
           <div class="loading-spinner"></div>
