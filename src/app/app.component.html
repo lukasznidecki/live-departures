@@ -33,10 +33,18 @@
         </div>
         
         <div class="stops-list" *ngIf="!isLoading && !error && nearestStops.length > 0">
-          <div class="stop-item" *ngFor="let stop of nearestStops; let i = index">
+          <div class="stop-item" *ngFor="let stop of nearestStops; let i = index" 
+               [class.expanded]="stop.expanded"
+               (click)="toggleStopExpansion(i)">
             <div class="stop-info">
-              <h3 class="stop-name">{{ stop.stop_name }} {{ stop.stop_num }}</h3>
-              <p class="stop-distance">{{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</p>
+              <div class="stop-header">
+                <div class="stop-main-info">
+                  <h3 class="stop-name">{{ stop.stop_name }} {{ stop.stop_num }}</h3>
+                  <p class="stop-distance">{{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</p>
+                </div>
+                <div class="expand-icon" [class.rotated]="stop.expanded">▼</div>
+              </div>
+              
               <div class="stop-directions" *ngIf="!stop.loadingDirections && stop.directions && stop.directions.length > 0">
                 <p class="directions-label">Richtungen:</p>
                 <div class="directions-list">
@@ -46,6 +54,27 @@
               <div class="directions-loading" *ngIf="stop.loadingDirections">
                 <div class="directions-spinner"></div>
                 <span class="directions-loading-text">Lade Richtungen...</span>
+              </div>
+
+              <div class="departures-section" *ngIf="stop.expanded">
+                <div class="departures-loading" *ngIf="stop.loadingDepartures">
+                  <div class="departures-spinner"></div>
+                  <span class="departures-loading-text">Lade Abfahrten...</span>
+                </div>
+                
+                <div class="departures-list" *ngIf="!stop.loadingDepartures && stop.departures && stop.departures.length > 0">
+                  <h4 class="departures-title">Abfahrten:</h4>
+                  <div class="departure-item" *ngFor="let departure of stop.departures">
+                    <div class="departure-line">{{ departure.line }}</div>
+                    <div class="departure-direction">{{ departure.direction }}</div>
+                    <div class="departure-vehicle">Nr. {{ departure.vehicleNumber }}</div>
+                    <div class="departure-time">{{ departure.departureTime }}</div>
+                  </div>
+                </div>
+
+                <div class="no-departures" *ngIf="!stop.loadingDepartures && (!stop.departures || stop.departures.length === 0)">
+                  <p>Keine Abfahrten verfügbar</p>
+                </div>
               </div>
             </div>
             <div class="stop-icon">🚋</div>

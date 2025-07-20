@@ -12,6 +12,9 @@ export interface TramStop {
   distance?: number;
   directions?: string[];
   loadingDirections?: boolean;
+  expanded?: boolean;
+  departures?: Departure[];
+  loadingDepartures?: boolean;
 }
 
 export interface StopTime {
@@ -19,6 +22,16 @@ export interface StopTime {
   trip_headsign: string;
   route_short_name: string;
   stop_num: string;
+  planned_departure_time: string;
+  predicted_departure_timestamp?: number;
+  trip_id: string;
+}
+
+export interface Departure {
+  line: string;
+  direction: string;
+  vehicleNumber: string;
+  departureTime: string;
 }
 
 export interface StopTimesResponse {
@@ -73,6 +86,32 @@ export class TramStopsService {
             .filter((direction, index, array) => array.indexOf(direction) === index);
           
           observer.next(tramDirections);
+          observer.complete();
+        },
+        error: (err) => {
+          observer.next([]);
+          observer.complete();
+        }
+      });
+    });
+  }
+
+  getDepartures(stopName: string, stopNum: string): Observable<Departure[]> {
+    const url = `${this.apiUrl}/${encodeURIComponent(stopName)}/current_stop_times`;
+    return new Observable(observer => {
+      this.http.get<StopTimesResponse>(url).subscribe({
+        next: (response) => {
+          const tramDepartures = response.current_stop_times
+            .filter(stopTime => stopTime.category === 'tram' && stopTime.stop_num === stopNum)
+            .map(stopTime => ({
+              line: stopTime.route_short_name,
+              direction: stopTime.trip_headsign,
+              vehicleNumber: stopTime.trip_id.split('-').pop() || '',
+              departureTime: stopTime.planned_departure_time
+            }))
+            .sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+          
+          observer.next(tramDepartures);
           observer.complete();
         },
         error: (err) => {

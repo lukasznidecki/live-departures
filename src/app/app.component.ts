@@ -85,4 +85,39 @@ export class AppComponent implements OnInit {
   retryLoadStops() {
     this.loadNearestStops();
   }
+
+  toggleStopExpansion(stopIndex: number) {
+    const stop = this.nearestStops[stopIndex];
+    
+    if (!stop.expanded) {
+      // Expanding - load departures
+      this.nearestStops[stopIndex] = {
+        ...stop,
+        expanded: true,
+        loadingDepartures: true
+      };
+
+      this.tramStopsService.getDepartures(stop.stop_name, stop.stop_num).subscribe({
+        next: (departures) => {
+          this.nearestStops[stopIndex] = {
+            ...this.nearestStops[stopIndex],
+            departures: departures,
+            loadingDepartures: false
+          };
+        },
+        error: (err) => {
+          this.nearestStops[stopIndex] = {
+            ...this.nearestStops[stopIndex],
+            loadingDepartures: false
+          };
+        }
+      });
+    } else {
+      // Collapsing
+      this.nearestStops[stopIndex] = {
+        ...stop,
+        expanded: false
+      };
+    }
+  }
 }

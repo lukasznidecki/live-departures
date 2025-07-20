@@ -338,3 +338,141 @@
   color: #666;
   font-style: italic;
 }
+
+.stop-item {
+  cursor: pointer;
+}
+
+.stop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.stop-main-info {
+  flex: 1;
+}
+
+.expand-icon {
+  font-size: 12px;
+  color: #667eea;
+  transition: transform 0.3s ease;
+  margin-left: 8px;
+  margin-top: 2px;
+}
+
+.expand-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.departures-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  animation: expandAnimation 0.3s ease-out;
+}
+
+@keyframes expandAnimation {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.departures-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.departures-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #667eea;
+  border-radius: 50%;
+  animation: departuresSpinAnimation 1s linear infinite;
+}
+
+@keyframes departuresSpinAnimation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.departures-loading-text {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}
+
+.departures-title {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.departures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.departure-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9ff;
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+}
+
+.departure-line {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+}
+
+.departure-direction {
+  font-size: 12px;
+  color: #333;
+  font-weight: 500;
+}
+
+.departure-vehicle {
+  font-size: 11px;
+  color: #666;
+  background: #e0e0e0;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.departure-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: #667eea;
+  min-width: 50px;
+  text-align: right;
+}
+
+.no-departures {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
