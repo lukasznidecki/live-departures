@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { StopCacheService } from './stop-cache.service';
 
 export interface TransportStop {
   stop_num: string;
@@ -53,15 +54,10 @@ export interface ApiResponse {
 export class TramStopsService {
   private apiUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/stops';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private stopCacheService: StopCacheService) { }
 
   getStops(): Observable<TransportStop[]> {
-    return new Observable(observer => {
-      this.http.get<ApiResponse>(this.apiUrl).subscribe(response => {
-        observer.next(response.stops);
-        observer.complete();
-      });
-    });
+    return this.stopCacheService.getStops();
   }
 
   calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -164,7 +160,7 @@ export class TramStopsService {
 
   getNearestStops(userLat: number, userLon: number, limit: number = 5, category: 'tram' | 'bus' = 'tram'): Observable<TransportStop[]> {
     return new Observable(observer => {
-      this.getStops().subscribe(stops => {
+      this.stopCacheService.getStops().subscribe(stops => {
         const stopsWithDistance = stops.map(stop => ({
           ...stop,
           distance: this.calculateDistance(userLat, userLon, stop.stop_lat, stop.stop_lon)
