@@ -12,7 +12,8 @@
       "Bash(ng add:*)",
       "Bash(ng build:*)",
       "Bash(wrangler:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

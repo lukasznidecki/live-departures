@@ -478,8 +478,10 @@ export class MapComponent implements OnInit, OnDestroy {
     const icon = isBus ? '🚌' : '🚊';
     const color = isBus ? '#FF9800' : '#4CAF50';
     
-    // Normalize bearing to prevent upside down vehicles
-    let normalizedBearing = vehicle.bearing;
+    // Normalize bearing to prevent upside down vehicles and rotate 90 degrees counterclockwise
+    let normalizedBearing = vehicle.bearing - 90;
+    if (normalizedBearing < 0) normalizedBearing += 360;
+    
     if (normalizedBearing > 90 && normalizedBearing < 270) {
       normalizedBearing = normalizedBearing + 180;
       if (normalizedBearing >= 360) normalizedBearing -= 360;
