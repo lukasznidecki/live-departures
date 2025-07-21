@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { GeolocationService, LocationData } from '../../services/geolocation.service';
-import { TramStopsService, TransportStop } from '../../services/tram-stops.service';
-import { Subscription } from 'rxjs';
+import { TramStopsService, TransportStop, Vehicle } from '../../services/tram-stops.service';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-map',
@@ -17,8 +17,10 @@ export class MapComponent implements OnInit, OnDestroy {
 
   private map!: L.Map;
   private locationSubscription!: Subscription;
+  private vehicleSubscription!: Subscription;
   private userMarker!: L.Marker;
   private stopMarkers: L.Marker[] = [];
+  private vehicleMarkers: Map<string, L.Marker> = new Map();
   private mapMoveTimeout: any;
   private lastLoadedBounds: L.LatLngBounds | null = null;
   private allStops: TransportStop[] = [];
@@ -39,11 +41,15 @@ export class MapComponent implements OnInit, OnDestroy {
     if (this.locationSubscription) {
       this.locationSubscription.unsubscribe();
     }
+    if (this.vehicleSubscription) {
+      this.vehicleSubscription.unsubscribe();
+    }
     if (this.mapMoveTimeout) {
       clearTimeout(this.mapMoveTimeout);
     }
     if (this.map) {
       this.clearStopMarkers();
+      this.clearVehicleMarkers();
       this.map.remove();
     }
   }
@@ -76,6 +82,9 @@ export class MapComponent implements OnInit, OnDestroy {
     
     // Load all stops data once at startup
     this.loadAllStops();
+    
+    // Start loading vehicles
+    this.loadVehicles();
   }
 
   private getCurrentLocation(): void {
@@ -379,5 +388,135 @@ export class MapComponent implements OnInit, OnDestroy {
 
   private toRadians(degree: number): number {
     return degree * (Math.PI / 180);
+  }
+
+  // Load active vehicles
+  private loadVehicles(): void {
+    // Load vehicles every 5 seconds
+    this.vehicleSubscription = interval(5000).subscribe(() => {
+      this.updateVehicles();
+    });
+    
+    // Load initial vehicles
+    this.updateVehicles();
+  }
+
+  // Update vehicle positions
+  private updateVehicles(): void {
+    this.tramStopsService.getActiveVehicles().subscribe({
+      next: (vehicles) => {
+        this.updateVehiclePositions(vehicles);
+      },
+      error: (err) => console.error('Error loading vehicles:', err)
+    });
+  }
+
+  // Update vehicle positions with animation
+  private updateVehiclePositions(vehicles: Vehicle[]): void {
+    if (!this.map) return;
+
+    const bounds = this.map.getBounds();
+    const extendedBounds = bounds.pad(0.2);
+    const activeVehicleIds = new Set<string>();
+
+    vehicles.forEach(vehicle => {
+      if (extendedBounds.contains([vehicle.latitude, vehicle.longitude])) {
+        activeVehicleIds.add(vehicle.kmk_id);
+        
+        const existingMarker = this.vehicleMarkers.get(vehicle.kmk_id);
+        
+        if (existingMarker) {
+          // Animate to new position
+          this.animateMarkerToPosition(existingMarker, vehicle);
+          // Update popup content
+          existingMarker.setPopupContent(this.createVehiclePopup(vehicle));
+        } else {
+          // Create new marker
+          const icon = this.createVehicleIcon(vehicle);
+          const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon })
+            .bindPopup(this.createVehiclePopup(vehicle), {
+              closeOnClick: false,
+              autoClose: false,
+              className: 'vehicle-popup'
+            });
+
+          marker.addTo(this.map);
+          this.vehicleMarkers.set(vehicle.kmk_id, marker);
+        }
+      }
+    });
+
+    // Remove vehicles that are no longer active or out of bounds
+    for (const [vehicleId, marker] of this.vehicleMarkers) {
+      if (!activeVehicleIds.has(vehicleId)) {
+        this.map.removeLayer(marker);
+        this.vehicleMarkers.delete(vehicleId);
+      }
+    }
+  }
+
+  // Animate marker to new position
+  private animateMarkerToPosition(marker: L.Marker, vehicle: Vehicle): void {
+    const currentLatLng = marker.getLatLng();
+    const newLatLng = L.latLng(vehicle.latitude, vehicle.longitude);
+    
+    // Only animate if position actually changed
+    if (currentLatLng.distanceTo(newLatLng) > 1) {
+      // Update icon with new bearing
+      const newIcon = this.createVehicleIcon(vehicle);
+      marker.setIcon(newIcon);
+      
+      // Animate to new position
+      marker.setLatLng(newLatLng);
+    }
+  }
+
+
+  // Create vehicle icon
+  private createVehicleIcon(vehicle: Vehicle): L.DivIcon {
+    const isBus = vehicle.category === 'bus';
+    const icon = isBus ? '🚌' : '🚊';
+    const color = isBus ? '#FF9800' : '#4CAF50';
+    
+    // Normalize bearing to prevent upside down vehicles
+    let normalizedBearing = vehicle.bearing;
+    if (normalizedBearing > 90 && normalizedBearing < 270) {
+      normalizedBearing = normalizedBearing + 180;
+      if (normalizedBearing >= 360) normalizedBearing -= 360;
+    }
+    
+    return L.divIcon({
+      className: 'custom-vehicle-marker',
+      html: `
+        <div class="vehicle-icon ${vehicle.category}" style="transform: rotate(${normalizedBearing}deg);">
+          <div class="vehicle-body" style="background: ${color};">
+            <span class="vehicle-emoji">${icon}</span>
+            <span class="vehicle-line-on-icon">${vehicle.route_short_name}</span>
+          </div>
+        </div>
+      `,
+      iconSize: [45, 20],
+      iconAnchor: [22, 10]
+    });
+  }
+
+  // Create vehicle popup
+  private createVehiclePopup(vehicle: Vehicle): string {
+    return `
+      <div class="vehicle-popup">
+        <h3>${vehicle.category === 'bus' ? 'Bus' : 'Straßenbahn'} ${vehicle.route_short_name}</h3>
+        <p><strong>Richtung:</strong> ${vehicle.trip_headsign}</p>
+        <p><strong>Fahrzeug:</strong> ${vehicle.kmk_id}</p>
+        <p style="font-size: 12px; color: #666;">Live-Position</p>
+      </div>
+    `;
+  }
+
+  // Clear all vehicle markers
+  private clearVehicleMarkers(): void {
+    for (const [vehicleId, marker] of this.vehicleMarkers) {
+      this.map.removeLayer(marker);
+    }
+    this.vehicleMarkers.clear();
   }
 }

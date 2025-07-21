@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { StopCacheService } from './stop-cache.service';
 
 export interface TransportStop {
@@ -45,6 +46,26 @@ export interface StopTimesResponse {
   current_stop_times: StopTime[];
 }
 
+export interface Vehicle {
+  kmk_id: string;
+  ttss_vehicle_id: string;
+  route_short_name: string;
+  category: string;
+  latitude: number;
+  longitude: number;
+  bearing: number;
+  trip_headsign: string;
+  service_id: string;
+  timestamp: number;
+  source: string;
+  shift?: string;
+  stop_name?: string;
+}
+
+export interface VehiclesResponse {
+  vehicles: Vehicle[];
+}
+
 export interface ApiResponse {
   stops: TransportStop[];
 }
@@ -54,6 +75,7 @@ export interface ApiResponse {
 })
 export class TramStopsService {
   private apiUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/stops';
+  private vehiclesUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles/active/ttss';
 
   constructor(private http: HttpClient, private stopCacheService: StopCacheService) { }
 
@@ -75,6 +97,12 @@ export class TramStopsService {
 
   private toRadians(degree: number): number {
     return degree * (Math.PI / 180);
+  }
+
+  getActiveVehicles(): Observable<Vehicle[]> {
+    return this.http.get<VehiclesResponse>(this.vehiclesUrl).pipe(
+      map(response => response.vehicles)
+    );
   }
 
   getStopTimes(stopName: string, stopNum: string, category: 'tram' | 'bus' = 'tram'): Observable<string[]> {
