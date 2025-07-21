@@ -21,18 +21,27 @@ export class GeolocationService {
         return;
       }
 
+      let resolved = false;
+
+      // Try high accuracy first
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const locationData: LocationData = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy
-          };
-          observer.next(locationData);
-          observer.complete();
+          if (!resolved) {
+            resolved = true;
+            const locationData: LocationData = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy
+            };
+            observer.next(locationData);
+            observer.complete();
+          }
         },
         (error) => {
-          observer.error(error);
+          // High accuracy failed, try low accuracy
+          if (!resolved) {
+            this.tryLowAccuracy(observer);
+          }
         },
         {
           enableHighAccuracy: true,
@@ -40,7 +49,36 @@ export class GeolocationService {
           maximumAge: 60000
         }
       );
+
+      // Fallback to low accuracy after 5 seconds
+      setTimeout(() => {
+        if (!resolved) {
+          this.tryLowAccuracy(observer);
+        }
+      }, 4000);
     });
+  }
+
+  private tryLowAccuracy(observer: any): void {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const locationData: LocationData = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        };
+        observer.next(locationData);
+        observer.complete();
+      },
+      (error) => {
+        observer.error(error);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
   }
 
   watchPosition(): Observable<LocationData> {
