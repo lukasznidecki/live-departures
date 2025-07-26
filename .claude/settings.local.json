@@ -13,7 +13,10 @@
       "Bash(ng build:*)",
       "Bash(wrangler:*)",
       "Bash(npm run build:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm start)",
+      "Bash(npm run cypress:run:*)",
+      "Bash(npx cypress run:*)"
     ],
     "deny": []
   }
