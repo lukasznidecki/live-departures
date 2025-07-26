@@ -35,4 +35,3 @@ jobs:
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         projectName: mpk-location-map
         directory: dist/location-map-app/browser
-        github_token: ${{ secrets.GITHUB_TOKEN }}
