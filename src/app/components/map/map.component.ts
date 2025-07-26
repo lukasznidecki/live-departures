@@ -508,7 +508,7 @@ export class MapComponent implements OnInit, OnDestroy {
       <div class="vehicle-popup">
         <h3>${vehicle.category === 'bus' ? 'Bus' : 'Straßenbahn'} ${vehicle.route_short_name}</h3>
         <p><strong>Richtung:</strong> ${vehicle.trip_headsign}</p>
-        <p><strong>Fahrzeug:</strong> <span onclick="navigator.clipboard.writeText('${vehicle.kmk_id}'); this.style.opacity='0.5'; this.innerHTML='${vehicle.kmk_id} ✓ Kopiert'; setTimeout(() => {this.innerHTML='${vehicle.kmk_id}'; this.style.opacity='1';}, 1500)" style="cursor: pointer; color: #667eea; text-decoration: underline;" title="Klicken zum Kopieren der Fahrzeugnummer">${vehicle.kmk_id}</span></p>
+        <p><strong>Fahrzeug:</strong> <span onclick="navigator.clipboard.writeText('${vehicle.kmk_id}'); const orig = this.innerHTML; const origBg = this.style.background; this.innerHTML='Kopiert!'; this.style.background='#4caf50'; setTimeout(() => {this.innerHTML=orig; this.style.background=origBg;}, 1500)" style="cursor: pointer; background: #e0e0e0; padding: 2px 6px; border-radius: 8px; font-size: 11px; color: #666; transition: all 0.2s ease; user-select: none;" onmouseover="this.style.background='#d0d0d0'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='#e0e0e0'; this.style.transform='scale(1)'" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1.05)'" title="Klicken zum Kopieren">${vehicle.kmk_id}</span></p>
         <p style="font-size: 12px; color: #666;">Live-Position</p>
       </div>
     `;
