@@ -6,7 +6,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { MapComponent } from './components/map/map.component';
 import { TramStopsService, TransportStop } from './services/tram-stops.service';
 import { GeolocationService } from './services/geolocation.service';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -110,7 +109,6 @@ export class AppComponent implements OnInit {
     const stop = this.nearestStops[stopIndex];
     
     if (!stop.expanded) {
-      // Expanding - load departures
       this.nearestStops[stopIndex] = {
         ...stop,
         expanded: true,
@@ -133,20 +131,18 @@ export class AppComponent implements OnInit {
         }
       });
     } else {
-      // Collapsing - start collapse animation
       this.nearestStops[stopIndex] = {
         ...stop,
         collapsing: true
       };
       
-      // After animation completes, set expanded to false
       setTimeout(() => {
         this.nearestStops[stopIndex] = {
           ...this.nearestStops[stopIndex],
           expanded: false,
           collapsing: false
         };
-      }, 300); // Match the CSS animation duration
+      }, 300);
     }
   }
 
@@ -156,7 +152,6 @@ export class AppComponent implements OnInit {
     try {
       await navigator.clipboard.writeText(text);
       
-      // Visual feedback
       const target = event.target as HTMLElement;
       const originalText = target.innerText;
       target.innerText = 'Kopiert!';

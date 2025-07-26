@@ -56,7 +56,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   private initializeMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [50.0647, 19.9450], // Default to Krakow
+      center: [50.0647, 19.9450],
       zoom: 13,
       zoomControl: true,
       attributionControl: true
@@ -76,14 +76,11 @@ export class MapComponent implements OnInit, OnDestroy {
 
     this.userMarker = L.marker([50.0647, 19.9450], { icon: customIcon });
 
-    // Add event listeners for intelligent loading
     this.map.on('moveend', () => this.onMapMove());
     this.map.on('zoomend', () => this.onMapMove());
     
-    // Load all stops data once at startup
     this.loadAllStops();
     
-    // Start loading vehicles
     this.loadVehicles();
   }
 
@@ -91,7 +88,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.locationSubscription = this.geolocationService.getCurrentPosition().subscribe({
       next: (location: LocationData) => {
         this.updateMapLocation(location);
-        this.updateVisibleStops(); // Load stops intelligently
+        this.updateVisibleStops();
         this.isLoading = false;
         this.error = null;
       },
@@ -119,13 +116,11 @@ export class MapComponent implements OnInit, OnDestroy {
     this.getCurrentLocation();
   }
 
-  // Load all stops data once and cache it
   private loadAllStops(): void {
     this.tramStopsService.getStops().subscribe({
       next: (stops) => {
         this.allStops = stops;
         
-        // Trigger initial update if map is ready
         if (this.map) {
           this.updateVisibleStops();
         }
@@ -134,7 +129,6 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Map movement handling with debouncing
   private onMapMove(): void {
     if (this.mapMoveTimeout) {
       clearTimeout(this.mapMoveTimeout);
@@ -145,7 +139,6 @@ export class MapComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
-  // Update visible stops based on current map view
   private updateVisibleStops(): void {
     if (this.allStops.length === 0) {
       return;
@@ -155,22 +148,18 @@ export class MapComponent implements OnInit, OnDestroy {
     const zoom = this.map.getZoom();
     const center = this.map.getCenter();
     
-    // Get stops within extended bounds for smoother experience
     const extendedBounds = bounds.pad(0.3);
     const visibleStops = this.allStops.filter(stop => 
       extendedBounds.contains([stop.stop_lat, stop.stop_lon])
     );
 
-    // If no stops in bounds, get nearest by distance
     let finalStops = visibleStops;
     if (visibleStops.length === 0) {
       finalStops = this.allStops;
     }
 
-    // Limit based on zoom level
     const maxStops = zoom > 15 ? 100 : zoom > 13 ? 60 : 40;
     
-    // Sort by distance and limit
     const stopsWithDistance = finalStops.map(stop => ({
       ...stop,
       distance: this.calculateDistance(center.lat, center.lng, stop.stop_lat, stop.stop_lon)
@@ -180,7 +169,6 @@ export class MapComponent implements OnInit, OnDestroy {
     this.addStopMarkers(stopsWithDistance);
   }
 
-  // Add markers for stops
   private addStopMarkers(stops: TransportStop[]): void {
     stops.forEach((stop, index) => {
       const icon = this.createStopIcon(stop, index);
@@ -194,7 +182,6 @@ export class MapComponent implements OnInit, OnDestroy {
           className: 'stable-popup'
         });
       
-      // Add click animation and load departures
       marker.on('click', (e) => {
         e.originalEvent?.stopPropagation();
         this.animateMarkerClick(e.target);
@@ -209,16 +196,13 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Modern click animation
   private animateMarkerClick(marker: any): void {
     const element = marker.getElement();
     if (element) {
       const stopIcon = element.querySelector('.stop-icon');
       if (stopIcon) {
-        // Add clicked class
         stopIcon.classList.add('clicked');
         
-        // Remove class after animation
         setTimeout(() => {
           stopIcon.classList.remove('clicked');
         }, 600);
@@ -226,26 +210,21 @@ export class MapComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Load departures for a stop
   private loadDepartures(stop: TransportStop, marker: L.Marker): void {
     const category = stop.tram && stop.bus ? 'tram' : stop.tram ? 'tram' : 'bus';
     
-    // Update popup with loading state
     marker.setPopupContent(this.createStopPopupWithLoading(stop));
     
     this.tramStopsService.getDepartures(stop.stop_name, stop.stop_num, category).subscribe({
       next: (departures) => {
-        // Update popup with departures
         marker.setPopupContent(this.createStopPopupWithDepartures(stop, departures));
       },
       error: (err) => {
-        // Update popup with error
         marker.setPopupContent(this.createStopPopupWithError(stop));
       }
     });
   }
 
-  // Create appropriate icon based on stop type
   private createStopIcon(stop: TransportStop, index: number = 0): L.DivIcon {
     const isTram = stop.tram;
     const isBus = stop.bus;
@@ -272,7 +251,6 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Create popup content for stop
   private createStopPopup(stop: TransportStop): string {
     const types = [];
     if (stop.tram) types.push('🚊 Tram');
@@ -288,7 +266,6 @@ export class MapComponent implements OnInit, OnDestroy {
     `;
   }
 
-  // Create popup with loading state
   private createStopPopupWithLoading(stop: TransportStop): string {
     const types = [];
     if (stop.tram) types.push('🚊 Tram');
@@ -307,7 +284,6 @@ export class MapComponent implements OnInit, OnDestroy {
     `;
   }
 
-  // Create popup with departures
   private createStopPopupWithDepartures(stop: TransportStop, departures: any[]): string {
     const types = [];
     if (stop.tram) types.push('🚊 Tram');
@@ -347,7 +323,6 @@ export class MapComponent implements OnInit, OnDestroy {
     `;
   }
 
-  // Create popup with error
   private createStopPopupWithError(stop: TransportStop): string {
     const types = [];
     if (stop.tram) types.push('🚊 Tram');
@@ -365,7 +340,6 @@ export class MapComponent implements OnInit, OnDestroy {
     `;
   }
 
-  // Clear all stop markers
   private clearStopMarkers(): void {
     this.stopMarkers.forEach(marker => {
       this.map.removeLayer(marker);
@@ -373,9 +347,8 @@ export class MapComponent implements OnInit, OnDestroy {
     this.stopMarkers = [];
   }
 
-  // Distance calculation utility
   private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371; // Earth's radius in kilometers
+    const R = 6371;
     const dLat = this.toRadians(lat2 - lat1);
     const dLon = this.toRadians(lon2 - lon1);
     const a =
@@ -390,18 +363,14 @@ export class MapComponent implements OnInit, OnDestroy {
     return degree * (Math.PI / 180);
   }
 
-  // Load active vehicles
   private loadVehicles(): void {
-    // Load vehicles every 5 seconds
     this.vehicleSubscription = interval(5000).subscribe(() => {
       this.updateVehicles();
     });
     
-    // Load initial vehicles
     this.updateVehicles();
   }
 
-  // Update vehicle positions
   private updateVehicles(): void {
     this.tramStopsService.getActiveVehicles().subscribe({
       next: (vehicles) => {
@@ -411,7 +380,6 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Update vehicle positions with animation
   private updateVehiclePositions(vehicles: Vehicle[]): void {
     if (!this.map) return;
 
@@ -426,12 +394,9 @@ export class MapComponent implements OnInit, OnDestroy {
         const existingMarker = this.vehicleMarkers.get(vehicle.kmk_id);
         
         if (existingMarker) {
-          // Animate to new position
           this.animateMarkerToPosition(existingMarker, vehicle);
-          // Update popup content
           existingMarker.setPopupContent(this.createVehiclePopup(vehicle));
         } else {
-          // Create new marker
           const icon = this.createVehicleIcon(vehicle);
           const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon })
             .bindPopup(this.createVehiclePopup(vehicle), {
@@ -446,7 +411,6 @@ export class MapComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Remove vehicles that are no longer active or out of bounds
     for (const [vehicleId, marker] of this.vehicleMarkers) {
       if (!activeVehicleIds.has(vehicleId)) {
         this.map.removeLayer(marker);
@@ -455,30 +419,24 @@ export class MapComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Animate marker to new position
   private animateMarkerToPosition(marker: L.Marker, vehicle: Vehicle): void {
     const currentLatLng = marker.getLatLng();
     const newLatLng = L.latLng(vehicle.latitude, vehicle.longitude);
     
-    // Only animate if position actually changed
     if (currentLatLng.distanceTo(newLatLng) > 1) {
-      // Update icon with new bearing
       const newIcon = this.createVehicleIcon(vehicle);
       marker.setIcon(newIcon);
       
-      // Animate to new position
       marker.setLatLng(newLatLng);
     }
   }
 
 
-  // Create vehicle icon
   private createVehicleIcon(vehicle: Vehicle): L.DivIcon {
     const isBus = vehicle.category === 'bus';
     const icon = isBus ? '🚌' : '🚊';
     const color = isBus ? '#FF9800' : '#4CAF50';
     
-    // Normalize bearing to prevent upside down vehicles and rotate 90 degrees counterclockwise
     let normalizedBearing = vehicle.bearing - 90;
     if (normalizedBearing < 0) normalizedBearing += 360;
     
@@ -502,7 +460,6 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Create vehicle popup
   private createVehiclePopup(vehicle: Vehicle): string {
     return `
       <div class="vehicle-popup">
@@ -514,7 +471,6 @@ export class MapComponent implements OnInit, OnDestroy {
     `;
   }
 
-  // Clear all vehicle markers
   private clearVehicleMarkers(): void {
     for (const [vehicleId, marker] of this.vehicleMarkers) {
       this.map.removeLayer(marker);

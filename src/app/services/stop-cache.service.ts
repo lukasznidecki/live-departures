@@ -13,7 +13,7 @@ export class StopCacheService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private readonly STORAGE_KEY = 'mpk_stops_cache';
   private readonly TIMESTAMP_KEY = 'mpk_stops_timestamp';
-  private readonly CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+  private readonly CACHE_DURATION = 7 * 24 * 60 * 60 * 1000;
 
   constructor(private http: HttpClient) {
     this.loadFromLocalStorage();
@@ -63,9 +63,6 @@ export class StopCacheService {
     return this.loadStops();
   }
 
-  isStopsLoaded(): boolean {
-    return this.isLoaded;
-  }
 
   private loadFromLocalStorage(): void {
     try {

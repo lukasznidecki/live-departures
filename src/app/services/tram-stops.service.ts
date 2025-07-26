@@ -20,7 +20,6 @@ export interface TransportStop {
   loadingDepartures?: boolean;
 }
 
-export interface TramStop extends TransportStop {}
 
 export interface StopTime {
   category: string;
@@ -84,7 +83,7 @@ export class TramStopsService {
   }
 
   calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371; // Earth's radius in kilometers
+    const R = 6371;
     const dLat = this.toRadians(lat2 - lat1);
     const dLon = this.toRadians(lon2 - lon1);
     const a =

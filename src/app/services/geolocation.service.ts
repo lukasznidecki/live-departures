@@ -23,7 +23,6 @@ export class GeolocationService {
 
       let resolved = false;
 
-      // Try high accuracy first
       navigator.geolocation.getCurrentPosition(
         (position) => {
           if (!resolved) {
@@ -38,7 +37,6 @@ export class GeolocationService {
           }
         },
         (error) => {
-          // High accuracy failed, try low accuracy
           if (!resolved) {
             this.tryLowAccuracy(observer);
           }
@@ -50,7 +48,6 @@ export class GeolocationService {
         }
       );
 
-      // Fallback to low accuracy after 5 seconds
       setTimeout(() => {
         if (!resolved) {
           this.tryLowAccuracy(observer);
@@ -81,33 +78,4 @@ export class GeolocationService {
     );
   }
 
-  watchPosition(): Observable<LocationData> {
-    return new Observable(observer => {
-      if (!navigator.geolocation) {
-        observer.error('Geolocation is not supported by this browser.');
-        return;
-      }
-
-      const watchId = navigator.geolocation.watchPosition(
-        (position) => {
-          const locationData: LocationData = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy
-          };
-          observer.next(locationData);
-        },
-        (error) => {
-          observer.error(error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 30000
-        }
-      );
-
-      return () => navigator.geolocation.clearWatch(watchId);
-    });
-  }
 }
