@@ -508,7 +508,7 @@ export class MapComponent implements OnInit, OnDestroy {
       <div class="vehicle-popup">
         <h3>${vehicle.category === 'bus' ? 'Bus' : 'Straßenbahn'} ${vehicle.route_short_name}</h3>
         <p><strong>Richtung:</strong> ${vehicle.trip_headsign}</p>
-        <p><strong>Fahrzeug:</strong> ${vehicle.kmk_id}</p>
+        <p><strong>Fahrzeug:</strong> <span onclick="navigator.clipboard.writeText('${vehicle.kmk_id}'); this.style.opacity='0.5'; this.innerHTML='${vehicle.kmk_id} ✓ Kopiert'; setTimeout(() => {this.innerHTML='${vehicle.kmk_id}'; this.style.opacity='1';}, 1500)" style="cursor: pointer; color: #667eea; text-decoration: underline;" title="Klicken zum Kopieren der Fahrzeugnummer">${vehicle.kmk_id}</span></p>
         <p style="font-size: 12px; color: #666;">Live-Position</p>
       </div>
     `;
