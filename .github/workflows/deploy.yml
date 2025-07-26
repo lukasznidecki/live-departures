@@ -27,17 +27,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build application
-        run: npm run build
-
-      - name: Start static server (from built app)
-        run: npx serve dist/location-map-app/browser --listen 4200 &
-
-      - name: Wait for application to be ready
-        run: npx wait-on http://localhost:4200
-
-      - name: Run Cypress tests
-        run: npm run cypress:run
+      - name:  build and run cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          build: npm run build
+          start: npm start
+          browser: chrome
 
       - name: Deploy to Cloudflare Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
