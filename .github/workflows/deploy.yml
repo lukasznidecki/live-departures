@@ -1,5 +1,9 @@
 name: Deploy to Cloudflare Pages
 
+permissions:
+  contents: read
+  deployments: write
+
 on:
   push:
     branches: [ master ]
@@ -31,4 +35,4 @@ jobs:
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         projectName: mpk-location-map
         directory: dist/location-map-app/browser
-        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
