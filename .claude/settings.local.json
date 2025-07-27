@@ -22,7 +22,10 @@
       "Bash(for file in *.ts)",
       "Bash(do echo \"=== $file ===\")",
       "Bash(done)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(npx ng build:*)",
+      "Bash(rm:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

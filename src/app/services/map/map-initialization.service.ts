@@ -26,10 +26,6 @@ export class MapInitializationService {
     return L.marker([this.DEFAULT_CENTER_LAT, this.DEFAULT_CENTER_LNG], { icon: customIcon });
   }
 
-  setupMapEventListeners(map: L.Map, onMapMove: () => void): void {
-    map.on('moveend', onMapMove);
-    map.on('zoomend', onMapMove);
-  }
 
   private addTileLayer(map: L.Map): void {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

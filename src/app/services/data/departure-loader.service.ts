@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TransportStopsService, TransportStop } from './tram-stops.service';
-import { PopupContentService } from './popup-content.service';
+import { PopupContentService } from '../ui/popup-content.service';
 import * as L from 'leaflet';
 
 @Injectable({

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { interval, Subscription } from 'rxjs';
 import * as L from 'leaflet';
-import { TransportStopsService, Vehicle } from './tram-stops.service';
+import { TransportStopsService, Vehicle } from '../data/tram-stops.service';
 
 @Injectable({
   providedIn: 'root'

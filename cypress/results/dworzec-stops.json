@@ -1,0 +1,24 @@
+{
+  "location": "Dworzec Główny w Krakowie",
+  "coordinates": {
+    "lat": 50.0671,
+    "lng": 19.9445
+  },
+  "timestamp": "2025-07-27T11:37:11.580Z",
+  "tramStops": [
+    "Dworzec Główny Zachód 01 - 102m entfernt",
+    "Dworzec Główny Zachód 02 - 104m entfernt",
+    "Teatr Słowackiego 04 - 238m entfernt",
+    "Teatr Słowackiego 02 - 251m entfernt",
+    "Dworzec Główny Tunel 01 - 256m entfernt"
+  ],
+  "busStops": [
+    "Dworzec Główny Zachód 09 - 12m entfernt",
+    "Dworzec Główny Zachód 07 - 94m entfernt",
+    "Dworzec Główny Zachód 03 - 159m entfernt",
+    "Dworzec Główny Zachód 05 - 195m entfernt",
+    "Teatr Słowackiego 02 - 251m entfernt"
+  ],
+  "totalTramStops": 5,
+  "totalBusStops": 5
+}

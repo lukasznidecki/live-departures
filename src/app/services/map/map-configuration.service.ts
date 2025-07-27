@@ -54,7 +54,4 @@ export class MapConfigurationService {
     return MapConfigurationService.BOUNDS_PADDING.STOP_VISIBILITY;
   }
 
-  getVehicleVisibilityBounds(): number {
-    return MapConfigurationService.BOUNDS_PADDING.VEHICLE_VISIBILITY;
-  }
 }

@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { TransportStop, Vehicle } from './tram-stops.service';
+import {Injectable} from '@angular/core';
+import {TransportStop, Vehicle} from '../data/tram-stops.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +8,7 @@ export class PopupContentService {
 
   createStopPopupInitial(stop: TransportStop): string {
     const transportTypes = this.getTransportTypesDisplay(stop);
-    
+
     return `
       <div class="stop-popup">
         <h3>${stop.stop_name}</h3>
@@ -21,7 +21,7 @@ export class PopupContentService {
 
   createStopPopupWithLoadingState(stop: TransportStop): string {
     const transportTypes = this.getTransportTypesDisplay(stop);
-    
+
     return `
       <div class="stop-popup">
         <h3>${stop.stop_name}</h3>
@@ -38,7 +38,7 @@ export class PopupContentService {
   createStopPopupWithDepartures(stop: TransportStop, departures: any[]): string {
     const transportTypes = this.getTransportTypesDisplay(stop);
     const departuresContent = this.generateDeparturesContent(departures);
-    
+
     return `
       <div class="stop-popup">
         <h3>${stop.stop_name}</h3>
@@ -51,7 +51,7 @@ export class PopupContentService {
 
   createStopPopupWithErrorState(stop: TransportStop): string {
     const transportTypes = this.getTransportTypesDisplay(stop);
-    
+
     return `
       <div class="stop-popup">
         <h3>${stop.stop_name}</h3>
@@ -64,19 +64,6 @@ export class PopupContentService {
     `;
   }
 
-  createVehiclePopupContent(vehicle: Vehicle): string {
-    const vehicleTypeName = vehicle.category === 'bus' ? 'Bus' : 'Straßenbahn';
-    const copyableId = this.createCopyableVehicleId(vehicle.kmk_id);
-    
-    return `
-      <div class="vehicle-popup">
-        <h3>${vehicleTypeName} ${vehicle.route_short_name}</h3>
-        <p><strong>Richtung:</strong> ${vehicle.trip_headsign}</p>
-        <p><strong>Fahrzeug:</strong> ${copyableId}</p>
-        <p style="font-size: 12px; color: #666;">Live-Position</p>
-      </div>
-    `;
-  }
 
   private getTransportTypesDisplay(stop: TransportStop): string {
     const types: string[] = [];

@@ -1,15 +1,15 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
-import { GeolocationService, LocationData } from '../../services/geolocation.service';
-import { TransportStop } from '../../services/tram-stops.service';
+import { GeolocationService, LocationData } from '../../services/location/geolocation.service';
+import { TransportStop } from '../../services/data/tram-stops.service';
 import { Subscription } from 'rxjs';
-import { MapInitializationService } from '../../services/map-initialization.service';
-import { MapStateManagerService } from '../../services/map-state-manager.service';
-import { MarkerManagementService } from '../../services/marker-management.service';
-import { StopLoadingCoordinatorService } from '../../services/stop-loading-coordinator.service';
-import { VehicleTrackingService } from '../../services/vehicle-tracking.service';
-import { DepartureLoaderService } from '../../services/departure-loader.service';
+import { MapInitializationService } from '../../services/map/map-initialization.service';
+import { MapStateManagerService } from '../../services/map/map-state-manager.service';
+import { MarkerManagementService } from '../../services/map/marker-management.service';
+import { StopLoadingCoordinatorService } from '../../services/data/stop-loading-coordinator.service';
+import { VehicleTrackingService } from '../../services/vehicle/vehicle-tracking.service';
+import { DepartureLoaderService } from '../../services/data/departure-loader.service';
 
 @Component({
   selector: 'app-map',

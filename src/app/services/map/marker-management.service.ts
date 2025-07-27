@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
-import { TransportStop } from './tram-stops.service';
-import { StopIconFactoryService } from './stop-icon-factory.service';
-import { PopupContentService } from './popup-content.service';
+import { TransportStop } from '../data/tram-stops.service';
+import { StopIconFactoryService } from '../factories/stop-icon-factory.service';
+import { PopupContentService } from '../ui/popup-content.service';
 import { MapConfigurationService } from './map-configuration.service';
 
 @Injectable({

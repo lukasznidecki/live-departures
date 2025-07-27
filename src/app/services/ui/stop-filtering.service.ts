@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
-import { TransportStop } from './tram-stops.service';
-import { GeoUtilsService } from './geo-utils.service';
-import { MapConfigurationService } from './map-configuration.service';
+import { TransportStop } from '../data/tram-stops.service';
+import { GeoUtilsService } from '../location/geo-utils.service';
+import { MapConfigurationService } from '../map/map-configuration.service';
 
 @Injectable({
   providedIn: 'root'

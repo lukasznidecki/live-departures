@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { StopCacheService } from './services/stop-cache.service';
+import { StopCacheService } from './services/data/stop-cache.service';
 
 @Injectable()
 export class AppInitializer {

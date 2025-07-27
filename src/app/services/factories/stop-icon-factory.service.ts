@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
-import { TransportStop } from './tram-stops.service';
-import { MapConfigurationService } from './map-configuration.service';
+import { TransportStop } from '../data/tram-stops.service';
+import { MapConfigurationService } from '../map/map-configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,14 +19,6 @@ export class StopIconFactoryService {
     });
   }
 
-  createUserLocationIcon(): L.DivIcon {
-    return L.divIcon({
-      className: 'custom-location-marker',
-      html: '<div class="marker-pin"></div>',
-      iconSize: [MapConfigurationService.ICON_SIZES.USER_LOCATION, MapConfigurationService.ICON_SIZES.USER_LOCATION],
-      iconAnchor: [MapConfigurationService.ICON_SIZES.USER_LOCATION / 2, MapConfigurationService.ICON_SIZES.USER_LOCATION / 2]
-    });
-  }
 
   private determineStopIconDetails(stop: TransportStop): { iconClass: string; iconHtml: string } {
     const baseClass = 'custom-stop-marker';

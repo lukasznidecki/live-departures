@@ -4,11 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MapComponent } from './components/map/map.component';
-import { TransportStop } from './services/tram-stops.service';
-import { StopLoadingCoordinatorService } from './services/stop-loading-coordinator.service';
-import { ClipboardUtilityService } from './services/clipboard-utility.service';
-import { DepartureExpansionService } from './services/departure-expansion.service';
-import { UiStateManagerService } from './services/ui-state-manager.service';
+import { TransportStop } from './services/data/tram-stops.service';
+import { StopLoadingCoordinatorService } from './services/data/stop-loading-coordinator.service';
+import { ClipboardUtilityService } from './services/utilities/clipboard-utility.service';
+import { DepartureExpansionService } from './services/data/departure-expansion.service';
+import { UiStateManagerService } from './services/ui/ui-state-manager.service';
 
 @Component({
   selector: 'app-root',
@@ -66,8 +66,8 @@ export class AppComponent implements OnInit {
       this.loadingMessage = state.loadingMessage;
     });
 
-    this.uiStateManagerService.getErrorState().subscribe(error => {
-      this.error = error;
+    this.uiStateManagerService.getErrorState().subscribe(errorState => {
+      this.error = errorState.error;
     });
   }
 

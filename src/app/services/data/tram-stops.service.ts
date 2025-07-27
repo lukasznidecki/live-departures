@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { StopCacheService } from './stop-cache.service';
-import { GeoUtilsService } from './geo-utils.service';
+import { GeoUtilsService } from '../location/geo-utils.service';
 
 export interface TransportStop {
   stop_num: string;

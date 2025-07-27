@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { TransportStopsService, TransportStop } from './tram-stops.service';
-import { GeolocationService, LocationData } from './geolocation.service';
-import { UiStateManagerService } from './ui-state-manager.service';
-import { StopFilteringService } from './stop-filtering.service';
+import { GeolocationService, LocationData } from '../location/geolocation.service';
+import { UiStateManagerService } from '../ui/ui-state-manager.service';
+import { StopFilteringService } from '../ui/stop-filtering.service';
 import * as L from 'leaflet';
 
 @Injectable({
