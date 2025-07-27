@@ -153,9 +153,29 @@ app-root {
   opacity: 1;
 }
 
+.nav-tab {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 56px;
+  font-weight: 500;
+  padding: var(--spacing-xs);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 .nav-tab:hover {
   color: rgba(255, 255, 255, 1);
-  transform: translateY(-1px) scale(1.02);
+  transform: translateY(-1px) scale(1.02) translateZ(0);
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -478,9 +498,28 @@ app-root {
   transition: left var(--transition-slow);
 }
 
+.action-button {
+  padding: clamp(12px, 3vw, 16px) clamp(24px, 6vw, 32px);
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  font-size: clamp(14px, 3.5vw, 16px);
+  font-weight: 600;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-width: 120px;
+  box-shadow: var(--shadow-lg);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 .action-button:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: var(--shadow-2xl);
+  transform: translateY(-2px) scale(1.02) translateZ(0);
 }
 
 .action-button:hover::before {
@@ -540,9 +579,26 @@ app-root {
   opacity: 1;
 }
 
+.stop-card {
+  background: var(--surface-primary);
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--primary-color);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 .stop-card:hover {
-  transform: translateY(-2px) scale(1.005);
-  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px) scale(1.005) translateZ(0);
   border-left-color: var(--secondary-color);
   background: rgba(255, 255, 255, 0.98);
 }
@@ -751,9 +807,28 @@ app-root {
   -webkit-tap-highlight-color: transparent;
 }
 
+.expand-button {
+  background: rgba(102, 126, 234, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 .expand-button:hover {
   background: rgba(102, 126, 234, 0.2);
-  transform: scale(1.1);
+  transform: scale(1.05) translateZ(0);
 }
 
 .expand-button.rotated {
@@ -862,10 +937,28 @@ app-root {
   transition: transform 0.6s ease;
 }
 
+.departure-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "line info time";
+  gap: clamp(8px, 2vw, 12px);
+  align-items: center;
+  padding: clamp(10px, 2.5vw, 14px);
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid var(--primary-color);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 44px;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 .departure-card:hover {
   background: rgba(255, 255, 255, 0.98);
-  transform: translateX(1px);
-  box-shadow: var(--shadow-md);
+  transform: translateX(1px) translateZ(0);
 }
 
 .departure-card:hover::before {
@@ -929,9 +1022,26 @@ app-root {
   -webkit-tap-highlight-color: transparent;
 }
 
+.vehicle-info {
+  font-size: clamp(9px, 2.3vw, 10px);
+  color: var(--gray-600);
+  background: var(--gray-100);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-sm);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.1s ease;
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  width: fit-content;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 .vehicle-info:hover {
   background: var(--gray-200);
-  transform: scale(1.05);
+  transform: scale(1.03) translateZ(0);
 }
 
 .vehicle-info:active {

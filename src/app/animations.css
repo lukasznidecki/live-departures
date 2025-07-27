@@ -564,9 +564,59 @@
   will-change: auto;
 }
 
+.will-change-composite {
+  will-change: transform, opacity;
+}
+
 /* Hardware Acceleration */
 .gpu-accelerated {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+/* Optimized hover animations - using transforms only */
+.hover-lift-optimized {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.hover-lift-optimized:hover {
+  transform: translateY(-2px) translateZ(0);
+}
+
+.hover-scale-optimized {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.hover-scale-optimized:hover {
+  transform: scale(1.05) translateZ(0);
+}
+
+/* Optimized card animations */
+.card-optimized {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.card-optimized:hover {
+  transform: translateY(-3px) scale(1.01) translateZ(0);
+}
+
+/* Optimized button animations */
+.button-optimized {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.button-optimized:hover {
+  transform: translateY(-1px) scale(1.02) translateZ(0);
+}
+
+.button-optimized:active {
+  transform: translateY(0) scale(0.98) translateZ(0);
+  transition-duration: 0.1s;
 }
