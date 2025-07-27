@@ -1,0 +1,185 @@
+/* Vehicle Movement Animations */
+
+.optimized-vehicle {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.vehicle-icon {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+.vehicle-body {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
+}
+
+/* Vehicle entrance animation */
+@keyframes vehicleAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateZ(0);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1) translateZ(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+/* Vehicle exit animation */
+@keyframes vehicleDisappear {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) translateZ(0);
+  }
+}
+
+/* Vehicle pulsing for active state */
+@keyframes vehiclePulse {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+  }
+  50% {
+    transform: scale(1.05) translateZ(0);
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+  }
+}
+
+/* Vehicle direction change animation */
+@keyframes vehicleRotate {
+  0% {
+    transform: rotate(var(--start-rotation, 0deg)) translateZ(0);
+  }
+  100% {
+    transform: rotate(var(--end-rotation, 0deg)) translateZ(0);
+  }
+}
+
+/* Vehicle speed indicator animation */
+@keyframes vehicleSpeed {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Apply animations to vehicle markers */
+.custom-vehicle-marker.entering .vehicle-icon {
+  animation: vehicleAppear 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.custom-vehicle-marker.exiting .vehicle-icon {
+  animation: vehicleDisappear 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.custom-vehicle-marker.active .vehicle-body {
+  animation: vehiclePulse 2s ease-in-out infinite;
+}
+
+.custom-vehicle-marker.fast-moving .vehicle-body {
+  animation: vehicleSpeed 1s ease-in-out infinite;
+}
+
+/* Hover effects for vehicle markers */
+.custom-vehicle-marker:hover .vehicle-icon {
+  transform: scale(1.1) translateZ(0);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-vehicle-marker:hover .vehicle-body {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Vehicle trail effect */
+.vehicle-trail {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(76, 175, 80, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: fadeTrail 1s ease-out forwards;
+}
+
+@keyframes fadeTrail {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+/* Performance optimizations */
+.vehicle-smooth-move {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Bus specific animations */
+.custom-vehicle-marker.bus .vehicle-icon {
+  animation: busFloat 4s ease-in-out infinite;
+}
+
+@keyframes busFloat {
+  0%, 100% {
+    transform: translateY(0) translateZ(0);
+  }
+  50% {
+    transform: translateY(-1px) translateZ(0);
+  }
+}
+
+/* Tram specific animations */
+.custom-vehicle-marker.tram .vehicle-icon {
+  animation: tramGlide 3s ease-in-out infinite;
+}
+
+@keyframes tramGlide {
+  0%, 100% {
+    transform: translateX(0) translateZ(0);
+  }
+  50% {
+    transform: translateX(0.5px) translateZ(0);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .custom-vehicle-marker .vehicle-icon,
+  .custom-vehicle-marker .vehicle-body {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .vehicle-trail {
+    display: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .custom-vehicle-marker .vehicle-body {
+    border: 2px solid #000;
+  }
+}

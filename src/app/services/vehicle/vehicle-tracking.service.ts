@@ -9,9 +9,14 @@ import { TransportStopsService, Vehicle } from '../data/tram-stops.service';
 export class VehicleTrackingService {
   private readonly VEHICLE_UPDATE_INTERVAL = 5000;
   private readonly VEHICLE_BOUNDS_PADDING = 0.2;
+  private readonly ANIMATION_DURATION = 800;
+  private readonly DISTANCE_THRESHOLD = 1;
+  private readonly SMOOTH_FACTOR = 0.1;
   
   private vehicleSubscription?: Subscription;
   private vehicleMarkers = new Map<string, L.Marker>();
+  private vehicleAnimations = new Map<string, any>();
+  private vehiclePositions = new Map<string, { lat: number; lng: number }>();
 
   constructor(private transportStopsService: TransportStopsService) {}
 
@@ -28,9 +33,12 @@ export class VehicleTrackingService {
 
   clearAllVehicleMarkers(map: L.Map): void {
     for (const [vehicleId, marker] of this.vehicleMarkers) {
+      this.cancelAnimation(vehicleId);
       map.removeLayer(marker);
     }
     this.vehicleMarkers.clear();
+    this.vehicleAnimations.clear();
+    this.vehiclePositions.clear();
   }
 
   private setupVehicleUpdateInterval(map: L.Map): void {
@@ -93,7 +101,7 @@ export class VehicleTrackingService {
   }
 
   private createNewVehicleMarker(vehicle: Vehicle, map: L.Map): void {
-    const icon = this.createVehicleIcon(vehicle);
+    const icon = this.createOptimizedVehicleIcon(vehicle);
     const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon })
       .bindPopup(this.createVehiclePopup(vehicle), {
         closeOnClick: false,
@@ -101,15 +109,22 @@ export class VehicleTrackingService {
         className: 'vehicle-popup'
       });
 
+    this.addVehicleEntranceAnimation(marker);
     marker.addTo(map);
     this.vehicleMarkers.set(vehicle.kmk_id, marker);
+    this.vehiclePositions.set(vehicle.kmk_id, { lat: vehicle.latitude, lng: vehicle.longitude });
   }
 
   private removeInvisibleVehicles(activeVehicleIds: Set<string>, map: L.Map): void {
     for (const [vehicleId, marker] of this.vehicleMarkers) {
       if (!activeVehicleIds.has(vehicleId)) {
-        map.removeLayer(marker);
-        this.vehicleMarkers.delete(vehicleId);
+        this.cancelAnimation(vehicleId);
+        this.addVehicleExitAnimation(marker, () => {
+          map.removeLayer(marker);
+          this.vehicleMarkers.delete(vehicleId);
+          this.vehicleAnimations.delete(vehicleId);
+          this.vehiclePositions.delete(vehicleId);
+        });
       }
     }
   }
@@ -117,11 +132,15 @@ export class VehicleTrackingService {
   private animateMarkerToPosition(marker: L.Marker, vehicle: Vehicle): void {
     const currentLatLng = marker.getLatLng();
     const newLatLng = L.latLng(vehicle.latitude, vehicle.longitude);
+    const distance = currentLatLng.distanceTo(newLatLng);
     
-    if (currentLatLng.distanceTo(newLatLng) > 1) {
-      const newIcon = this.createVehicleIcon(vehicle);
+    if (distance > this.DISTANCE_THRESHOLD) {
+      this.updateVehicleSpeed(marker, currentLatLng, newLatLng);
+      this.cancelAnimation(vehicle.kmk_id);
+      this.smoothAnimateMarker(marker, currentLatLng, newLatLng, vehicle);
+    } else {
+      const newIcon = this.createOptimizedVehicleIcon(vehicle);
       marker.setIcon(newIcon);
-      marker.setLatLng(newLatLng);
     }
   }
 
@@ -162,5 +181,119 @@ export class VehicleTrackingService {
         <p style="font-size: 12px; color: #666;">Live-Position</p>
       </div>
     `;
+  }
+
+  private cancelAnimation(vehicleId: string): void {
+    const animation = this.vehicleAnimations.get(vehicleId);
+    if (animation) {
+      cancelAnimationFrame(animation);
+      this.vehicleAnimations.delete(vehicleId);
+    }
+  }
+
+  private smoothAnimateMarker(
+    marker: L.Marker, 
+    startLatLng: L.LatLng, 
+    endLatLng: L.LatLng, 
+    vehicle: Vehicle
+  ): void {
+    const startTime = performance.now();
+    const startLat = startLatLng.lat;
+    const startLng = startLatLng.lng;
+    const deltaLat = endLatLng.lat - startLat;
+    const deltaLng = endLatLng.lng - startLng;
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / this.ANIMATION_DURATION, 1);
+      
+      const easedProgress = this.easeOutCubic(progress);
+      
+      const currentLat = startLat + (deltaLat * easedProgress);
+      const currentLng = startLng + (deltaLng * easedProgress);
+      const currentLatLng = L.latLng(currentLat, currentLng);
+      
+      marker.setLatLng(currentLatLng);
+      
+      if (progress < 1) {
+        const animationId = requestAnimationFrame(animate);
+        this.vehicleAnimations.set(vehicle.kmk_id, animationId);
+      } else {
+        const finalIcon = this.createOptimizedVehicleIcon(vehicle);
+        marker.setIcon(finalIcon);
+        marker.setLatLng(endLatLng);
+        this.vehiclePositions.set(vehicle.kmk_id, { lat: endLatLng.lat, lng: endLatLng.lng });
+        this.vehicleAnimations.delete(vehicle.kmk_id);
+      }
+    };
+
+    const animationId = requestAnimationFrame(animate);
+    this.vehicleAnimations.set(vehicle.kmk_id, animationId);
+  }
+
+  private easeOutCubic(t: number): number {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  private createOptimizedVehicleIcon(vehicle: Vehicle): L.DivIcon {
+    const isBus = vehicle.category === 'bus';
+    const icon = isBus ? '🚌' : '🚊';
+    const color = isBus ? '#FF9800' : '#4CAF50';
+    
+    let normalizedBearing = vehicle.bearing - 90;
+    if (normalizedBearing < 0) normalizedBearing += 360;
+    
+    if (normalizedBearing > 90 && normalizedBearing < 270) {
+      normalizedBearing = normalizedBearing + 180;
+      if (normalizedBearing >= 360) normalizedBearing -= 360;
+    }
+    
+    return L.divIcon({
+      className: 'custom-vehicle-marker optimized-vehicle',
+      html: `
+        <div class="vehicle-icon ${vehicle.category} will-change-transform gpu-accelerated" 
+             style="transform: rotate(${normalizedBearing}deg) translateZ(0);">
+          <div class="vehicle-body" style="background: ${color};">
+            <span class="vehicle-emoji">${icon}</span>
+            <span class="vehicle-line-on-icon">${vehicle.route_short_name}</span>
+          </div>
+        </div>
+      `,
+      iconSize: [45, 20],
+      iconAnchor: [22, 10]
+    });
+  }
+
+  private addVehicleEntranceAnimation(marker: L.Marker): void {
+    const element = marker.getElement();
+    if (element) {
+      element.classList.add('entering');
+      setTimeout(() => {
+        element.classList.remove('entering');
+        element.classList.add('active');
+      }, 600);
+    }
+  }
+
+  private addVehicleExitAnimation(marker: L.Marker, callback: () => void): void {
+    const element = marker.getElement();
+    if (element) {
+      element.classList.add('exiting');
+      setTimeout(callback, 400);
+    } else {
+      callback();
+    }
+  }
+
+  private updateVehicleSpeed(marker: L.Marker, currentPos: L.LatLng, newPos: L.LatLng): void {
+    const distance = currentPos.distanceTo(newPos);
+    const element = marker.getElement();
+    
+    if (element && distance > 10) {
+      element.classList.add('fast-moving');
+      setTimeout(() => {
+        element.classList.remove('fast-moving');
+      }, 2000);
+    }
   }
 }
