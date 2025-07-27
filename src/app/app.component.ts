@@ -4,8 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MapComponent } from './components/map/map.component';
-import { TransportStopsService, TransportStop } from './services/tram-stops.service';
-import { GeolocationService } from './services/geolocation.service';
+import { TransportStop } from './services/tram-stops.service';
+import { StopLoadingCoordinatorService } from './services/stop-loading-coordinator.service';
+import { ClipboardUtilityService } from './services/clipboard-utility.service';
+import { DepartureExpansionService } from './services/departure-expansion.service';
+import { UiStateManagerService } from './services/ui-state-manager.service';
 
 @Component({
   selector: 'app-root',
@@ -25,11 +28,14 @@ export class AppComponent implements OnInit {
   loadingMessage = '';
 
   constructor(
-    private transportStopsService: TransportStopsService,
-    private geolocationService: GeolocationService
+    private stopLoadingCoordinatorService: StopLoadingCoordinatorService,
+    private clipboardUtilityService: ClipboardUtilityService,
+    private departureExpansionService: DepartureExpansionService,
+    private uiStateManagerService: UiStateManagerService
   ) {}
 
   ngOnInit() {
+    this.setupUiStateSubscription();
     this.loadNearestStops();
   }
 
@@ -46,58 +52,22 @@ export class AppComponent implements OnInit {
   }
 
   loadNearestStops() {
-    this.isLoading = true;
-    this.isLoadingLocation = true;
-    this.error = null;
-    this.loadingMessage = 'Ermittle Standort...';
-
-    this.geolocationService.getCurrentPosition().subscribe({
-      next: (position) => {
-        this.isLoadingLocation = false;
-        this.loadingMessage = 'Suche nächste Haltestellen...';
-        
-        const { latitude, longitude } = position;
-        this.transportStopsService.getNearestStops(latitude, longitude, 5, this.transportTab).subscribe({
-          next: (stops) => {
-            this.nearestStops = stops.map(stop => ({
-              ...stop,
-              loadingDirections: true
-            }));
-            
-            this.isLoading = false;
-            this.loadingMessage = '';
-
-            stops.forEach((stop, index) => {
-              this.transportStopsService.getStopTimes(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
-                next: (directions) => {
-                  this.nearestStops[index] = {
-                    ...this.nearestStops[index],
-                    directions: directions,
-                    loadingDirections: false
-                  };
-                },
-                error: (err) => {
-                  this.nearestStops[index] = {
-                    ...this.nearestStops[index],
-                    loadingDirections: false
-                  };
-                }
-              });
-            });
-          },
-          error: (err) => {
-            this.error = 'Fehler beim Laden der Haltestellen';
-            this.isLoading = false;
-            this.loadingMessage = '';
-          }
-        });
-      },
-      error: (err) => {
-        this.error = 'Standort konnte nicht ermittelt werden';
-        this.isLoading = false;
-        this.isLoadingLocation = false;
-        this.loadingMessage = '';
+    this.stopLoadingCoordinatorService.loadNearestStops(this.transportTab).subscribe({
+      next: (stops) => {
+        this.nearestStops = stops;
       }
+    });
+  }
+
+  private setupUiStateSubscription(): void {
+    this.uiStateManagerService.getLoadingState().subscribe(state => {
+      this.isLoading = state.isLoading;
+      this.isLoadingLocation = state.isLoadingLocation;
+      this.loadingMessage = state.loadingMessage;
+    });
+
+    this.uiStateManagerService.getErrorState().subscribe(error => {
+      this.error = error;
     });
   }
 
@@ -106,62 +76,22 @@ export class AppComponent implements OnInit {
   }
 
   toggleStopExpansion(stopIndex: number) {
-    const stop = this.nearestStops[stopIndex];
-    
-    if (!stop.expanded) {
-      this.nearestStops[stopIndex] = {
-        ...stop,
-        expanded: true,
-        loadingDepartures: true
-      };
-
-      this.transportStopsService.getDepartures(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
-        next: (departures) => {
-          this.nearestStops[stopIndex] = {
-            ...this.nearestStops[stopIndex],
-            departures: departures,
-            loadingDepartures: false
-          };
-        },
-        error: (err) => {
-          this.nearestStops[stopIndex] = {
-            ...this.nearestStops[stopIndex],
-            loadingDepartures: false
-          };
-        }
-      });
-    } else {
-      this.nearestStops[stopIndex] = {
-        ...stop,
-        collapsing: true
-      };
-      
-      setTimeout(() => {
-        this.nearestStops[stopIndex] = {
-          ...this.nearestStops[stopIndex],
-          expanded: false,
-          collapsing: false
-        };
-      }, 300);
-    }
+    this.departureExpansionService.toggleStopExpansion(
+      this.nearestStops,
+      stopIndex,
+      this.transportTab,
+      (index, updatedStop) => {
+        this.nearestStops[index] = updatedStop;
+      }
+    );
   }
 
   async copyToClipboard(text: string, event: Event) {
     event.stopPropagation();
     
     try {
-      await navigator.clipboard.writeText(text);
-      
       const target = event.target as HTMLElement;
-      const originalText = target.innerText;
-      target.innerText = 'Kopiert!';
-      target.style.background = '#4caf50';
-      
-      setTimeout(() => {
-        target.innerText = originalText;
-        target.style.background = '';
-      }, 1000);
-      
+      await this.clipboardUtilityService.copyTextToClipboard(text, target);
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
     }
