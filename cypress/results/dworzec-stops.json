@@ -4,20 +4,20 @@
     "lat": 50.0671,
     "lng": 19.9445
   },
-  "timestamp": "2025-07-27T11:37:11.580Z",
+  "timestamp": "2025-07-27T12:22:14.062Z",
   "tramStops": [
-    "Dworzec Główny Zachód 01 - 102m entfernt",
-    "Dworzec Główny Zachód 02 - 104m entfernt",
-    "Teatr Słowackiego 04 - 238m entfernt",
-    "Teatr Słowackiego 02 - 251m entfernt",
-    "Dworzec Główny Tunel 01 - 256m entfernt"
+    "Dworzec Główny Zachód 01",
+    "Dworzec Główny Zachód 02",
+    "Teatr Słowackiego 04",
+    "Teatr Słowackiego 02",
+    "Dworzec Główny Tunel 01"
   ],
   "busStops": [
-    "Dworzec Główny Zachód 09 - 12m entfernt",
-    "Dworzec Główny Zachód 07 - 94m entfernt",
-    "Dworzec Główny Zachód 03 - 159m entfernt",
-    "Dworzec Główny Zachód 05 - 195m entfernt",
-    "Teatr Słowackiego 02 - 251m entfernt"
+    "Dworzec Główny Zachód 09",
+    "Dworzec Główny Zachód 07",
+    "Dworzec Główny Zachód 03",
+    "Dworzec Główny Zachód 05",
+    "Teatr Słowackiego 02"
   ],
   "totalTramStops": 5,
   "totalBusStops": 5

@@ -8,21 +8,21 @@ describe('Capture Stops for Dworzec Główny', () => {
     let tramStops = [];
     let busStops = [];
 
-    cy.get('img[alt="Tram"]').parent().click();
-    cy.get('.loading-overlay', { timeout: 15000 }).should('not.exist');
-    cy.get('.stops-list', { timeout: 15000 }).should('be.visible');
+    cy.get('button[aria-label="Tram stops"]').click();
+    cy.get('.loading-state', { timeout: 15000 }).should('not.exist');
+    cy.get('.stops-grid', { timeout: 15000 }).should('be.visible');
 
-    cy.get('.stop-item').each(($stop, index) => {
+    cy.get('.stop-card').each(($stop, index) => {
       cy.wrap($stop).find('.stop-name').then(($name) => {
         tramStops.push($name.text().trim());
       });
     });
 
-    cy.get('img[alt="Bus"]').parent().click();
-    cy.get('.loading-overlay', { timeout: 15000 }).should('not.exist');
-    cy.get('.stops-list', { timeout: 15000 }).should('be.visible');
+    cy.get('button[aria-label="Bus stops"]').click();
+    cy.get('.loading-state', { timeout: 15000 }).should('not.exist');
+    cy.get('.stops-grid', { timeout: 15000 }).should('be.visible');
 
-    cy.get('.stop-item').each(($stop, index) => {
+    cy.get('.stop-card').each(($stop, index) => {
       cy.wrap($stop).find('.stop-name').then(($name) => {
         busStops.push($name.text().trim());
       });

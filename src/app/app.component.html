@@ -1,104 +1,139 @@
-<div class="tab-container">
-  <div class="tab-header">
-    <button
-      class="tab-button"
-      [class.active]="activeTab === 'tram'"
-      (click)="setActiveTab('tram')">
-      <img class="tab-icon" src="assets/icons/tram.svg" alt="Tram">
-    </button>
-    <button
-      class="tab-button"
-      [class.active]="activeTab === 'bus'"
-      (click)="setActiveTab('bus')">
-      <img class="tab-icon" src="assets/icons/bus.svg" alt="Bus">
-    </button>
-    <button
-      class="tab-button"
-      [class.active]="activeTab === 'map'"
-      (click)="setActiveTab('map')">
-      <img class="tab-icon" src="assets/icons/map.svg" alt="Map">
-    </button>
-  </div>
-
-  <div class="tab-content">
-    <div class="tab-panel" [class.active]="activeTab === 'tram' || activeTab === 'bus'">
-      <div class="stops-container">
-        <div class="loading-overlay" *ngIf="isLoading">
-          <div class="loading-spinner"></div>
-          <p>{{ loadingMessage }}</p>
+<div class="app-container">
+  <header class="navigation-bar">
+    <nav class="tab-navigation" role="tablist">
+      <button
+        class="nav-tab"
+        [class.active]="activeTab === 'tram'"
+        (click)="setActiveTab('tram')"
+        role="tab"
+        [attr.aria-selected]="activeTab === 'tram'"
+        aria-label="Tram stops">
+        <div class="tab-content">
+          <img class="tab-icon" src="assets/icons/tram.svg" alt="">
+          <span class="tab-label">Tram</span>
         </div>
+      </button>
+      <button
+        class="nav-tab"
+        [class.active]="activeTab === 'bus'"
+        (click)="setActiveTab('bus')"
+        role="tab"
+        [attr.aria-selected]="activeTab === 'bus'"
+        aria-label="Bus stops">
+        <div class="tab-content">
+          <img class="tab-icon" src="assets/icons/bus.svg" alt="">
+          <span class="tab-label">Bus</span>
+        </div>
+      </button>
+      <button
+        class="nav-tab"
+        [class.active]="activeTab === 'map'"
+        (click)="setActiveTab('map')"
+        role="tab"
+        [attr.aria-selected]="activeTab === 'map'"
+        aria-label="Map view">
+        <div class="tab-content">
+          <img class="tab-icon" src="assets/icons/map.svg" alt="">
+          <span class="tab-label">Map</span>
+        </div>
+      </button>
+    </nav>
+  </header>
 
-        <div class="error-overlay" *ngIf="error && !isLoading">
-          <div class="error-content">
-            <div class="error-icon">🚏</div>
-            <p>{{ error }}</p>
-            <button class="retry-button" (click)="retryLoadStops()">Erneut versuchen</button>
+  <main class="main-content" role="main">
+    <section class="content-panel" [class.active]="activeTab === 'tram' || activeTab === 'bus'" role="tabpanel">
+      <div class="content-wrapper">
+        <div class="loading-state" *ngIf="isLoading">
+          <div class="loading-indicator">
+            <div class="spinner-ring"></div>
+            <p class="loading-text">{{ loadingMessage }}</p>
           </div>
         </div>
 
-        <div class="stops-list" *ngIf="!isLoading && !error && nearestStops.length > 0">
-          <div class="stop-item" *ngFor="let stop of nearestStops; let i = index"
-               [class.expanded]="stop.expanded"
-               (click)="toggleStopExpansion(i)">
-            <div class="stop-info">
-              <div class="stop-header">
-                <div class="stop-main-info">
+        <div class="error-state" *ngIf="error && !isLoading">
+          <div class="error-card">
+            <div class="error-icon" aria-hidden="true">🚏</div>
+            <p class="error-message">{{ error }}</p>
+            <button class="action-button retry-button" (click)="retryLoadStops()">
+              Erneut versuchen
+            </button>
+          </div>
+        </div>
+
+        <div class="stops-grid" *ngIf="!isLoading && !error && nearestStops.length > 0">
+          <article class="stop-card" *ngFor="let stop of nearestStops; let i = index"
+                   [class.expanded]="stop.expanded"
+                   (click)="toggleStopExpansion(i)"
+                   role="button"
+                   tabindex="0"
+                   [attr.aria-expanded]="stop.expanded">
+            <div class="card-content">
+              <header class="stop-header">
+                <div class="stop-info">
                   <h3 class="stop-name">
-                    {{ stop.stop_name }} {{ stop.stop_num }} -
-                    <span class="stop-distance">{{ (stop.distance! * 1000) | number:'1.0-0' }}m entfernt</span>
+                    {{ stop.stop_name }} {{ stop.stop_num }}
                   </h3>
+                  <span class="distance-badge">{{ (stop.distance! * 1000) | number:'1.0-0' }}m</span>
                 </div>
-                <div class="expand-icon" [class.rotated]="stop.expanded">▼</div>
+                <button class="expand-button" [class.rotated]="stop.expanded" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </header>
+
+              <div class="directions-section" *ngIf="!stop.loadingDirections && stop.directions && stop.directions.length > 0">
+                <div class="directions-grid">
+                  <span class="direction-tag" *ngFor="let direction of stop.directions">{{ direction }}</span>
+                </div>
+              </div>
+              
+              <div class="loading-inline" *ngIf="stop.loadingDirections">
+                <div class="mini-spinner"></div>
+                <span class="loading-text-small">Lade Richtungen...</span>
               </div>
 
-              <div class="stop-directions" *ngIf="!stop.loadingDirections && stop.directions && stop.directions.length > 0">
-                <p class="directions-label">Richtungen:</p>
-                <div class="directions-list">
-                  <span class="direction-item" *ngFor="let direction of stop.directions">{{ direction }}</span>
-                </div>
-              </div>
-              <div class="directions-loading" *ngIf="stop.loadingDirections">
-                <div class="directions-spinner"></div>
-                <span class="directions-loading-text">Lade Richtungen...</span>
-              </div>
-
-              <div class="departures-section" 
+              <div class="departures-container" 
                    [class.collapsing]="stop.collapsing"
                    *ngIf="stop.expanded || stop.collapsing">
                 <div class="departures-loading" *ngIf="stop.loadingDepartures">
-                  <div class="departures-spinner"></div>
-                  <span class="departures-loading-text">Lade Abfahrten...</span>
+                  <div class="mini-spinner"></div>
+                  <span class="loading-text-small">Lade Abfahrten...</span>
                 </div>
 
-                <div class="departures-list" *ngIf="!stop.loadingDepartures && stop.departures && stop.departures.length > 0">
-                  <h4 class="departures-title">Abfahrten:</h4>
-                  <div class="departure-item" *ngFor="let departure of stop.departures">
-                    <div class="departure-line">{{ departure.line }}</div>
-                    <div class="departure-direction">{{ departure.direction }}</div>
-                    <div class="departure-vehicle clickable"
-                         *ngIf="departure.vehicleNumber && departure.vehicleNumber.trim() !== ''"
-                         (click)="copyToClipboard(departure.vehicleNumber, $event)"
-                         title="Klicken zum Kopieren">
-                      {{ departure.vehicleNumber }}
+                <div class="departures-section" *ngIf="!stop.loadingDepartures && stop.departures && stop.departures.length > 0">
+                  <h4 class="section-title">Abfahrten</h4>
+                  <div class="departures-grid">
+                    <div class="departure-card" *ngFor="let departure of stop.departures">
+                      <div class="line-badge">{{ departure.line }}</div>
+                      <div class="departure-info">
+                        <div class="direction-text">{{ departure.direction }}</div>
+                        <div class="vehicle-info"
+                             *ngIf="departure.vehicleNumber && departure.vehicleNumber.trim() !== ''"
+                             (click)="copyToClipboard(departure.vehicleNumber, $event)"
+                             title="Klicken zum Kopieren">
+                          {{ departure.vehicleNumber }}
+                        </div>
+                      </div>
+                      <div class="time-badge">{{ departure.minutesUntilDeparture }} min</div>
                     </div>
-                    <div class="departure-time">{{ departure.minutesUntilDeparture }} min</div>
                   </div>
                 </div>
 
-                <div class="no-departures" *ngIf="!stop.loadingDepartures && (!stop.departures || stop.departures.length === 0)">
+                <div class="empty-state" *ngIf="!stop.loadingDepartures && (!stop.departures || stop.departures.length === 0)">
                   <p>Keine Abfahrten verfügbar</p>
                 </div>
               </div>
             </div>
-          </div>
+          </article>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="tab-panel" [class.active]="activeTab === 'map'">
+    <section class="content-panel" [class.active]="activeTab === 'map'" role="tabpanel">
       <app-map></app-map>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
 
 <router-outlet/>

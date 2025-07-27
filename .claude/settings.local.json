@@ -25,7 +25,8 @@
       "Bash(npm run test:*)",
       "Bash(npx ng build:*)",
       "Bash(rm:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

@@ -2,16 +2,20 @@
   position: relative;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary-gradient);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .leaflet-map {
   width: 100%;
   height: 100%;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
+  position: relative;
 }
 
 .loading-overlay {
@@ -20,31 +24,50 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--surface-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  width: 64px;
+  height: 64px;
+  border: 4px solid var(--gray-200);
+  border-top: 4px solid var(--primary-color);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  animation: modernSpin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  margin-bottom: var(--spacing-lg);
+  position: relative;
+}
+
+.loading-spinner::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 3px solid transparent;
+  border-top: 3px solid var(--secondary-color);
+  border-radius: 50%;
+  animation: modernSpinReverse 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
 }
 
 .loading-overlay p {
-  font-size: 18px;
-  color: #333;
-  font-weight: 500;
+  font-size: var(--font-size-lg);
+  color: var(--gray-700);
+  font-weight: 600;
   margin: 0;
   animation: pulse 2s ease-in-out infinite;
+  text-align: center;
+  max-width: 300px;
+  line-height: 1.5;
 }
 
 .error-overlay {
@@ -53,55 +76,94 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--surface-primary);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  animation: slideInScale 0.5s ease-out;
 }
 
 .error-content {
   text-align: center;
-  padding: 40px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  max-width: 300px;
+  padding: var(--spacing-2xl);
+  background: var(--surface-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-2xl);
+  max-width: 320px;
   animation: slideIn 0.3s ease-out;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.error-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--error-color), var(--warning-color));
 }
 
 .error-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  animation: bounce 1s ease-in-out infinite;
+  font-size: 64px;
+  margin-bottom: var(--spacing-lg);
+  animation: bounceIn 0.8s ease-out 0.2s both;
+  display: inline-block;
 }
 
 .error-content p {
-  color: #666;
-  margin-bottom: 24px;
-  line-height: 1.5;
+  color: var(--gray-600);
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.6;
+  font-weight: 500;
 }
 
 .retry-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary-gradient);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-weight: 600;
+  padding: var(--spacing-md) var(--spacing-2xl);
+  border-radius: var(--border-radius-full);
+  font-weight: 700;
+  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+  min-width: 140px;
+}
+
+.retry-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left var(--transition-slow);
 }
 
 .retry-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--shadow-2xl);
+}
+
+.retry-button:hover::before {
+  left: 100%;
 }
 
 .retry-button:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(0.98);
+  transition: all var(--transition-fast);
 }
 
 /* Custom marker styles */
@@ -182,20 +244,208 @@
   }
 }
 
+/* Floating controls */
+.map-controls {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.control-button {
+  background: var(--surface-primary);
+  border: none;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-xl);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.control-button:active {
+  transform: translateY(0) scale(0.98);
+  transition: all var(--transition-fast);
+}
+
+.control-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--gray-700);
+  transition: all var(--transition-normal);
+}
+
+.control-button:hover .control-icon {
+  color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+/* Map info panel */
+.map-info {
+  position: absolute;
+  bottom: var(--spacing-md);
+  left: var(--spacing-md);
+  right: var(--spacing-md);
+  background: var(--surface-primary);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 500;
+  transform: translateY(100%);
+  transition: all var(--transition-normal);
+  opacity: 0;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.map-info.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.info-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0;
+}
+
+.info-close {
+  background: none;
+  border: none;
+  color: var(--gray-500);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  transition: all var(--transition-normal);
+}
+
+.info-close:hover {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.info-content {
+  font-size: var(--font-size-xs);
+  color: var(--gray-600);
+  line-height: 1.4;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .map-container {
     height: 100vh;
   }
 
-  .leaflet-map {
-    border-radius: 0;
+  .map-controls {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+  }
+
+  .control-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .control-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .map-info {
+    bottom: var(--spacing-sm);
+    left: var(--spacing-sm);
+    right: var(--spacing-sm);
+    padding: var(--spacing-sm);
   }
 
   .error-content {
     margin: 20px;
     max-width: calc(100% - 40px);
   }
+}
+
+/* Leaflet control customizations */
+:host ::ng-deep .leaflet-control-zoom {
+  border: none;
+  box-shadow: var(--shadow-lg);
+}
+
+:host ::ng-deep .leaflet-control-zoom a {
+  background: var(--surface-primary);
+  color: var(--gray-700);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  transition: all var(--transition-normal);
+  font-weight: 600;
+}
+
+:host ::ng-deep .leaflet-control-zoom a:hover {
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+:host ::ng-deep .leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 10px;
+  padding: 2px 4px;
+}
+
+:host ::ng-deep .leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-lg);
+}
+
+:host ::ng-deep .leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+:host ::ng-deep .leaflet-popup-close-button {
+  color: var(--gray-500);
+  font-size: 16px;
+  font-weight: 600;
+  transition: all var(--transition-normal);
+}
+
+:host ::ng-deep .leaflet-popup-close-button:hover {
+  color: var(--primary-color);
+  transform: scale(1.1);
 }
 
 :host ::ng-deep .stable-popup {
@@ -213,26 +463,30 @@
 :host ::ng-deep .custom-stop-marker {
   background: none;
   border: none;
+  z-index: 500 !important;
 }
 
 :host ::ng-deep .stop-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  border: 3px solid white;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  font-size: 12px;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
+  font-weight: 600;
+  z-index: 500;
+  position: relative;
 }
 
 :host ::ng-deep .stop-icon:hover {
-  transform: scale(1.2);
-  z-index: 1000;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transform: scale(1.15);
+  z-index: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 :host ::ng-deep .stop-icon:active {
@@ -265,36 +519,37 @@
 
 :host ::ng-deep .stop-icon.tram {
   background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
 :host ::ng-deep .stop-icon.tram:hover {
-  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
 
 :host ::ng-deep .stop-icon.bus {
   background: linear-gradient(135deg, #FF9800 0%, #E65100 100%);
-  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
 }
 
 :host ::ng-deep .stop-icon.bus:hover {
-  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.6);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
 }
 
 :host ::ng-deep .stop-icon.mixed {
   background: linear-gradient(135deg, #4CAF50 0%, #FF9800 50%, #E65100 100%);
   font-size: 11px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 :host ::ng-deep .stop-icon.mixed:hover {
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 /* Vehicle marker styles */
 :host ::ng-deep .custom-vehicle-marker {
   background: none;
   border: none;
+  z-index: 1000 !important;
 }
 
 :host ::ng-deep .vehicle-icon {
@@ -302,66 +557,134 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 45px;
-  height: 20px;
+  width: 60px;
+  height: 28px;
   transition: all 0.3s ease;
+  z-index: 1000;
 }
 
 :host ::ng-deep .vehicle-body {
-  width: 40px;
-  height: 16px;
-  border-radius: 8px;
+  width: 54px;
+  height: 22px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 4px;
-  font-size: 10px;
+  padding: 0 6px;
+  font-size: 12px;
   border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
   position: relative;
-  z-index: 2;
+  z-index: 1001;
   transition: all 0.3s ease;
+  font-weight: 700;
 }
 
 :host ::ng-deep .vehicle-emoji {
-  font-size: 10px;
+  font-size: 14px;
   line-height: 1;
 }
 
 :host ::ng-deep .vehicle-line-on-icon {
-  font-size: 8px;
+  font-size: 11px;
   font-weight: bold;
   color: white;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   line-height: 1;
-  min-width: 12px;
+  min-width: 16px;
   text-align: center;
 }
 
 :host ::ng-deep .vehicle-icon:hover {
-  transform: scale(1.2);
+  transform: scale(1.15);
+  z-index: 1002;
 }
 
 :host ::ng-deep .vehicle-icon:hover .vehicle-body {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* Vehicle popup styles */
 :host ::ng-deep .vehicle-popup .leaflet-popup-content-wrapper {
   background: rgba(255, 255, 255, 0.98);
-  border-radius: 8px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 :host ::ng-deep .vehicle-popup h3 {
-  margin: 0 0 8px 0;
-  color: #333;
-  font-size: 14px;
+  margin: 0 0 var(--spacing-xs) 0;
+  color: var(--gray-800);
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
 :host ::ng-deep .vehicle-popup p {
-  margin: 4px 0;
-  font-size: 12px;
-  color: #666;
+  margin: 2px 0;
+  font-size: var(--font-size-xs);
+  color: var(--gray-600);
+  line-height: 1.3;
+}
+
+/* Enhanced vehicle type styling */
+:host ::ng-deep .vehicle-body.tram {
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+:host ::ng-deep .vehicle-body.bus {
+  background: linear-gradient(135deg, #FF9800 0%, #E65100 100%);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+:host ::ng-deep .vehicle-body.mixed {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Add pulsing animation for moving vehicles */
+:host ::ng-deep .vehicle-icon.moving {
+  animation: vehiclePulse 2s ease-in-out infinite;
+}
+
+@keyframes vehiclePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Enhanced shadows for better visibility */
+:host ::ng-deep .vehicle-body {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+:host ::ng-deep .vehicle-icon:hover .vehicle-body {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+/* Make vehicle markers more prominent on map */
+:host ::ng-deep .vehicle-icon::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+:host ::ng-deep .vehicle-icon:hover::before {
+  opacity: 1;
 }
