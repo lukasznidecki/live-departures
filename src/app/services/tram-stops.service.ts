@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { StopCacheService } from './stop-cache.service';
+import { GeoUtilsService } from './geo-utils.service';
 
 export interface TransportStop {
   stop_num: string;
@@ -72,30 +73,18 @@ export interface ApiResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class TramStopsService {
-  private apiUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/stops';
-  private vehiclesUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles/active/ttss';
+export class TransportStopsService {
+  private readonly apiUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/stops';
+  private readonly vehiclesUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles/active/ttss';
 
-  constructor(private http: HttpClient, private stopCacheService: StopCacheService) { }
+  constructor(
+    private http: HttpClient,
+    private stopCacheService: StopCacheService,
+    private geoUtilsService: GeoUtilsService
+  ) { }
 
   getStops(): Observable<TransportStop[]> {
     return this.stopCacheService.getStops();
-  }
-
-  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371;
-    const dLat = this.toRadians(lat2 - lat1);
-    const dLon = this.toRadians(lon2 - lon1);
-    const a =
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  }
-
-  private toRadians(degree: number): number {
-    return degree * (Math.PI / 180);
   }
 
   getActiveVehicles(): Observable<Vehicle[]> {
@@ -186,22 +175,26 @@ export class TramStopsService {
     });
   }
 
-  getNearestStops(userLat: number, userLon: number, limit: number = 5, category: 'tram' | 'bus' = 'tram'): Observable<TransportStop[]> {
+  getNearestStops(userLatitude: number, userLongitude: number, maxStops: number = 5, transportType: 'tram' | 'bus' = 'tram'): Observable<TransportStop[]> {
     return new Observable(observer => {
       this.stopCacheService.getStops().subscribe(stops => {
         const stopsWithDistance = stops.map(stop => ({
           ...stop,
-          distance: this.calculateDistance(userLat, userLon, stop.stop_lat, stop.stop_lon)
+          distance: this.calculateDistanceFromUser(userLatitude, userLongitude, stop)
         }));
 
         const nearestStops = stopsWithDistance
-          .filter(stop => category === 'tram' ? stop.tram : stop.bus)
+          .filter(stop => transportType === 'tram' ? stop.tram : stop.bus)
           .sort((a, b) => a.distance! - b.distance!)
-          .slice(0, limit);
+          .slice(0, maxStops);
 
         observer.next(nearestStops);
         observer.complete();
       });
     });
+  }
+
+  private calculateDistanceFromUser(userLatitude: number, userLongitude: number, stop: TransportStop): number {
+    return this.geoUtilsService.calculateDistanceInKm(userLatitude, userLongitude, stop.stop_lat, stop.stop_lon);
   }
 }

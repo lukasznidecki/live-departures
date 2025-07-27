@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MapComponent } from './components/map/map.component';
-import { TramStopsService, TransportStop } from './services/tram-stops.service';
+import { TransportStopsService, TransportStop } from './services/tram-stops.service';
 import { GeolocationService } from './services/geolocation.service';
 
 @Component({
@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
   loadingMessage = '';
 
   constructor(
-    private tramStopsService: TramStopsService,
+    private transportStopsService: TransportStopsService,
     private geolocationService: GeolocationService
   ) {}
 
@@ -57,7 +57,7 @@ export class AppComponent implements OnInit {
         this.loadingMessage = 'Suche nächste Haltestellen...';
         
         const { latitude, longitude } = position;
-        this.tramStopsService.getNearestStops(latitude, longitude, 5, this.transportTab).subscribe({
+        this.transportStopsService.getNearestStops(latitude, longitude, 5, this.transportTab).subscribe({
           next: (stops) => {
             this.nearestStops = stops.map(stop => ({
               ...stop,
@@ -68,7 +68,7 @@ export class AppComponent implements OnInit {
             this.loadingMessage = '';
 
             stops.forEach((stop, index) => {
-              this.tramStopsService.getStopTimes(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
+              this.transportStopsService.getStopTimes(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
                 next: (directions) => {
                   this.nearestStops[index] = {
                     ...this.nearestStops[index],
@@ -115,7 +115,7 @@ export class AppComponent implements OnInit {
         loadingDepartures: true
       };
 
-      this.tramStopsService.getDepartures(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
+      this.transportStopsService.getDepartures(stop.stop_name, stop.stop_num, this.transportTab).subscribe({
         next: (departures) => {
           this.nearestStops[stopIndex] = {
             ...this.nearestStops[stopIndex],

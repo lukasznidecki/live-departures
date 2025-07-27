@@ -16,7 +16,13 @@
       "Bash(find:*)",
       "Bash(npm start)",
       "Bash(npm run cypress:run:*)",
-      "Bash(npx cypress run:*)"
+      "Bash(npx cypress run:*)",
+      "Bash(git push:*)",
+      "Bash(grep:*)",
+      "Bash(for file in *.ts)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)",
+      "Bash(npm run test:*)"
     ],
     "deny": []
   }
