@@ -1,6 +1,6 @@
 <div class="app-container">
   <header class="navigation-bar">
-    <nav class="tab-navigation" role="tablist">
+    <nav class="tab-navigation" role="tablist" [attr.data-active-tab]="activeTab === 'tram' ? '1' : activeTab === 'bus' ? '2' : '3'">
       <button
         class="nav-tab"
         [class.active]="activeTab === 'tram'"
@@ -87,13 +87,13 @@
                   <span class="direction-tag" *ngFor="let direction of stop.directions">{{ direction }}</span>
                 </div>
               </div>
-              
+
               <div class="loading-inline" *ngIf="stop.loadingDirections">
                 <div class="mini-spinner"></div>
                 <span class="loading-text-small">Lade Richtungen...</span>
               </div>
 
-              <div class="departures-container" 
+              <div class="departures-container"
                    [class.collapsing]="stop.collapsing"
                    *ngIf="stop.expanded || stop.collapsing">
                 <div class="departures-loading" *ngIf="stop.loadingDepartures">
