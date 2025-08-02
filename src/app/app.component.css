@@ -1291,6 +1291,44 @@ app-root {
   -webkit-text-fill-color: var(--success-color);
 }
 
+/* Copyable elements in vehicle modal */
+.info-value.copyable {
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.info-value.copyable:hover {
+  transform: scale(1.02);
+  background: var(--primary-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.info-value.copyable:active {
+  transform: scale(0.98);
+}
+
+.info-value.copyable::after {
+  content: '📋';
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  font-size: 12px;
+  transition: all var(--transition-normal);
+  pointer-events: none;
+}
+
+.info-value.copyable:hover::after {
+  opacity: 0.7;
+  right: -24px;
+}
+
 /* Special styling for vehicle ID */
 .info-item:first-child {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
@@ -1307,6 +1345,13 @@ app-root {
   color: white;
   background: none;
   -webkit-text-fill-color: white;
+}
+
+.info-item:first-child .info-value.copyable:hover {
+  background: rgba(255, 255, 255, 0.9);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .info-item:first-child:hover {

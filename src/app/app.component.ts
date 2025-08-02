@@ -126,4 +126,15 @@ export class AppComponent implements OnInit {
     this.showVehicleInfoModal = false;
     this.selectedVehicleInfo = null;
   }
+
+  async copyVehicleInfo(text: string, event: Event) {
+    event.stopPropagation();
+    
+    try {
+      const target = event.target as HTMLElement;
+      await this.clipboardUtilityService.copyTextToClipboard(text, target);
+    } catch (err) {
+      console.error('Failed to copy vehicle info to clipboard:', err);
+    }
+  }
 }
