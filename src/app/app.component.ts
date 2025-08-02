@@ -15,7 +15,7 @@ import { UiStateManagerService } from './services/ui/ui-state-manager.service';
   standalone: true,
   imports: [RouterOutlet, MapComponent, CommonModule, FormsModule, HttpClientModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
   title = 'location-map-app';
