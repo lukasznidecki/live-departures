@@ -20,9 +20,13 @@ describe('Simple Stop Check for Dworzec Główny', () => {
       });
     });
 
-    cy.get('.stop-card').then(($stops) => {
-      cy.log(`Total tram stops found: ${$stops.length}`);
-    });
+    cy.get('.stop-card')
+      .then(($stops) => {
+        cy.log(`Total tram stops found: ${$stops.length}`);
+        return $stops;
+      })
+      .its('length')
+      .should('be.gt', 0);
 
     cy.get('button[aria-label="Bus stops"]').click();
     cy.get('.loading-state', { timeout: 15000 }).should('not.exist');
@@ -35,8 +39,12 @@ describe('Simple Stop Check for Dworzec Główny', () => {
       });
     });
 
-    cy.get('.stop-card').then(($stops) => {
-      cy.log(`Total bus stops found: ${$stops.length}`);
-    });
+    cy.get('.stop-card')
+      .then(($stops) => {
+        cy.log(`Total bus stops found: ${$stops.length}`);
+        return $stops;
+      })
+      .its('length')
+      .should('be.gt', 0);
   });
 });
