@@ -11,6 +11,10 @@ export interface ErrorState {
   error: string | null;
 }
 
+export interface VehicleSelectionState {
+  selectedVehicleId: string | null;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +30,10 @@ export class UiStateManagerService {
     error: null
   });
 
+  private readonly vehicleSelectionState$ = new BehaviorSubject<VehicleSelectionState>({
+    selectedVehicleId: null
+  });
+
 
   getLoadingState() {
     return this.loadingState$.asObservable();
@@ -33,6 +41,10 @@ export class UiStateManagerService {
 
   getErrorState() {
     return this.errorState$.asObservable();
+  }
+
+  getVehicleSelectionState() {
+    return this.vehicleSelectionState$.asObservable();
   }
 
 
@@ -43,6 +55,10 @@ export class UiStateManagerService {
 
   setErrorState(error: string | null): void {
     this.errorState$.next({ error });
+  }
+
+  selectVehicle(vehicleId: string | null): void {
+    this.vehicleSelectionState$.next({ selectedVehicleId: vehicleId });
   }
 
 }
