@@ -156,6 +156,12 @@
         </button>
       </div>
       <div class="modal-content">
+        <div class="vehicle-image-section" *ngIf="getVehicleImagePath(selectedVehicleInfo.short_model_name)">
+          <img [src]="getVehicleImagePath(selectedVehicleInfo.short_model_name)" 
+               [alt]="selectedVehicleInfo.full_model_name"
+               class="vehicle-image"
+               (error)="onImageError($event)">
+        </div>
         <div class="vehicle-info-grid">
           <div class="info-item">
             <span class="info-label">Fahrzeug-ID:</span>

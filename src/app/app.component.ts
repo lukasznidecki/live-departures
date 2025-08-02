@@ -137,4 +137,25 @@ export class AppComponent implements OnInit {
       console.error('Failed to copy vehicle info to clipboard:', err);
     }
   }
+
+  private normalizeModelName(modelName: string): string {
+    return modelName
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .replace(/\s+/g, '_')
+      .toLowerCase();
+  }
+
+  getVehicleImagePath(modelName: string): string | null {
+    if (!modelName) return null;
+    
+    const normalizedName = this.normalizeModelName(modelName);
+    const imagePath = `assets/vehicles_pics/${normalizedName}.jpg`;
+    
+    return imagePath;
+  }
+
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
 }
