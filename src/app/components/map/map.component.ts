@@ -110,4 +110,5 @@ export class MapComponent implements OnInit, OnDestroy {
     this.markerManagementService.clearMarkers(this.stopMarkers, this.map);
     this.stopMarkers = [];
   }
+
 }

@@ -62,6 +62,19 @@ export interface Vehicle {
   stop_name?: string;
 }
 
+export interface VehicleInfo {
+  category: string;
+  floor: string;
+  full_kmk_id: string;
+  full_model_name: string;
+  kmk_id: string;
+  short_model_name: string;
+}
+
+export interface VehicleInfoResponse {
+  vehicles: VehicleInfo[];
+}
+
 export interface VehiclesResponse {
   vehicles: Vehicle[];
 }
@@ -76,6 +89,7 @@ export interface ApiResponse {
 export class TransportStopsService {
   private readonly apiUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/stops';
   private readonly vehiclesUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles/active/ttss';
+  private readonly vehicleInfoUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles';
 
   constructor(
     private http: HttpClient,
@@ -89,6 +103,12 @@ export class TransportStopsService {
 
   getActiveVehicles(): Observable<Vehicle[]> {
     return this.http.get<VehiclesResponse>(this.vehiclesUrl).pipe(
+      map(response => response.vehicles)
+    );
+  }
+
+  getVehicleInfo(): Observable<VehicleInfo[]> {
+    return this.http.get<VehicleInfoResponse>(this.vehicleInfoUrl).pipe(
       map(response => response.vehicles)
     );
   }

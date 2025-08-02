@@ -9,6 +9,7 @@ import { StopLoadingCoordinatorService } from './services/data/stop-loading-coor
 import { ClipboardUtilityService } from './services/utilities/clipboard-utility.service';
 import { DepartureExpansionService } from './services/data/departure-expansion.service';
 import { UiStateManagerService } from './services/ui/ui-state-manager.service';
+import { Departure, VehicleInfo, TransportStopsService } from './services/data/tram-stops.service';
 
 @Component({
   selector: 'app-root',
@@ -26,12 +27,15 @@ export class AppComponent implements OnInit {
   isLoadingLocation = false;
   error: string | null = null;
   loadingMessage = '';
+  selectedVehicleInfo: VehicleInfo | null = null;
+  showVehicleInfoModal = false;
 
   constructor(
     private stopLoadingCoordinatorService: StopLoadingCoordinatorService,
     private clipboardUtilityService: ClipboardUtilityService,
     private departureExpansionService: DepartureExpansionService,
-    private uiStateManagerService: UiStateManagerService
+    private uiStateManagerService: UiStateManagerService,
+    private transportStopsService: TransportStopsService
   ) {}
 
   ngOnInit() {
@@ -95,5 +99,31 @@ export class AppComponent implements OnInit {
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
     }
+  }
+
+  onDepartureClick(departure: Departure, event: Event) {
+    event.stopPropagation();
+    
+    if (departure.vehicleNumber && departure.vehicleNumber.trim() !== '') {
+      this.showVehicleInfo(departure.vehicleNumber);
+    }
+  }
+
+  showVehicleInfo(vehicleNumber: string) {
+    this.transportStopsService.getVehicleInfo().subscribe({
+      next: (vehicleInfoList) => {
+        const vehicleInfo = vehicleInfoList.find(info => info.kmk_id === vehicleNumber);
+        if (vehicleInfo) {
+          this.selectedVehicleInfo = vehicleInfo;
+          this.showVehicleInfoModal = true;
+        }
+      },
+      error: (err) => console.error('Error loading vehicle info:', err)
+    });
+  }
+
+  closeVehicleInfoModal() {
+    this.showVehicleInfoModal = false;
+    this.selectedVehicleInfo = null;
   }
 }
