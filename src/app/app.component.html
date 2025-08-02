@@ -159,7 +159,7 @@
         <div class="vehicle-info-grid">
           <div class="info-item">
             <span class="info-label">Fahrzeug-ID:</span>
-            <span class="info-value copyable" 
+            <span class="info-value copyable"
                   (click)="copyVehicleInfo(selectedVehicleInfo.kmk_id, $event)"
                   title="Klicken zum Kopieren">{{ selectedVehicleInfo.kmk_id }}</span>
           </div>
@@ -168,22 +168,10 @@
             <span class="info-value accessibility-icon">♿ Niederflur</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Vollständiges Modell:</span>
-            <span class="info-value copyable" 
+            <span class="info-label">Modell:</span>
+            <span class="info-value copyable"
                   (click)="copyVehicleInfo(selectedVehicleInfo.full_model_name, $event)"
                   title="Klicken zum Kopieren">{{ selectedVehicleInfo.full_model_name }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kurzes Modell:</span>
-            <span class="info-value copyable" 
-                  (click)="copyVehicleInfo(selectedVehicleInfo.short_model_name, $event)"
-                  title="Klicken zum Kopieren">{{ selectedVehicleInfo.short_model_name }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Vollständige ID:</span>
-            <span class="info-value copyable" 
-                  (click)="copyVehicleInfo(selectedVehicleInfo.full_kmk_id, $event)"
-                  title="Klicken zum Kopieren">{{ selectedVehicleInfo.full_kmk_id }}</span>
           </div>
         </div>
       </div>
