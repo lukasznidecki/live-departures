@@ -1213,6 +1213,19 @@ app-root {
   background: var(--bg-primary);
 }
 
+.vehicle-image-section {
+  margin-bottom: clamp(16px, 4vw, 20px);
+}
+
+.vehicle-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-200);
+}
+
 .vehicle-info-grid {
   display: grid;
   gap: clamp(16px, 4vw, 20px);

@@ -33,7 +33,8 @@
       "Bash(npm test:*)",
       "Bash(ng version)",
       "Bash(timeout 15 npm start)",
-      "Bash(timeout 10 ng serve:*)"
+      "Bash(timeout 10 ng serve:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
