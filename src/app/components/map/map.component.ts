@@ -16,7 +16,7 @@ import { DepartureLoaderService } from '../../services/data/departure-loader.ser
   standalone: true,
   imports: [CommonModule],
   templateUrl: './map.component.html',
-  styleUrl: './map.component.css'
+  styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
