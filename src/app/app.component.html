@@ -1,6 +1,7 @@
 <div class="app-container">
   <header class="navigation-bar">
-    <nav class="tab-navigation" role="tablist" [attr.data-active-tab]="activeTab === 'tram' ? '1' : activeTab === 'bus' ? '2' : '3'">
+    <nav class="tab-navigation" role="tablist"
+         [attr.data-active-tab]="activeTab === 'tram' ? '1' : activeTab === 'bus' ? '2' : '3'">
       <button
         class="nav-tab"
         [class.active]="activeTab === 'tram'"
@@ -77,12 +78,14 @@
                 </div>
                 <button class="expand-button" [class.rotated]="stop.expanded" aria-hidden="true">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round"/>
                   </svg>
                 </button>
               </header>
 
-              <div class="directions-section" *ngIf="!stop.loadingDirections && stop.directions && stop.directions.length > 0">
+              <div class="directions-section"
+                   *ngIf="!stop.loadingDirections && stop.directions && stop.directions.length > 0">
                 <div class="directions-grid">
                   <span class="direction-tag" *ngFor="let direction of stop.directions">{{ direction }}</span>
                 </div>
@@ -101,7 +104,8 @@
                   <span class="loading-text-small">Lade Abfahrten...</span>
                 </div>
 
-                <div class="departures-section" *ngIf="!stop.loadingDepartures && stop.departures && stop.departures.length > 0">
+                <div class="departures-section"
+                     *ngIf="!stop.loadingDepartures && stop.departures && stop.departures.length > 0">
                   <h4 class="section-title">Abfahrten</h4>
                   <div class="departures-grid">
                     <div class="departure-card" *ngFor="let departure of stop.departures"
@@ -123,7 +127,8 @@
                   </div>
                 </div>
 
-                <div class="empty-state" *ngIf="!stop.loadingDepartures && (!stop.departures || stop.departures.length === 0)">
+                <div class="empty-state"
+                     *ngIf="!stop.loadingDepartures && (!stop.departures || stop.departures.length === 0)">
                   <p>Keine Abfahrten verfügbar</p>
                 </div>
               </div>
@@ -142,7 +147,8 @@
   <div class="vehicle-info-overlay" *ngIf="showVehicleInfoModal" (click)="closeVehicleInfoModal()">
     <div class="vehicle-info-modal" (click)="$event.stopPropagation()" *ngIf="selectedVehicleInfo">
       <div class="modal-header">
-        <h3 [class]="selectedVehicleInfo.category">{{ selectedVehicleInfo.category === 'bus' ? 'Bus' : 'Straßenbahn' }} Informationen</h3>
+        <h3 [class]="selectedVehicleInfo.category">{{ selectedVehicleInfo.category === 'bus' ? 'Bus' : 'Straßenbahn' }}
+          Informationen</h3>
         <button class="close-button" (click)="closeVehicleInfoModal()" aria-label="Schließen">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -160,16 +166,8 @@
             <span class="info-value accessibility-icon">♿ Niederflur</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Vollständiges Modell:</span>
+            <span class="info-label">Modell:</span>
             <span class="info-value">{{ selectedVehicleInfo.full_model_name }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Kurzes Modell:</span>
-            <span class="info-value">{{ selectedVehicleInfo.short_model_name }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Vollständige ID:</span>
-            <span class="info-value">{{ selectedVehicleInfo.full_kmk_id }}</span>
           </div>
         </div>
       </div>
