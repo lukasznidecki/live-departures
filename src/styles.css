@@ -274,3 +274,305 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Global stable popup overlay for vehicles */
+.stable-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding: var(--spacing-md);
+}
+
+.stable-popup-overlay.visible {
+  opacity: 1;
+}
+
+.stable-popup-content {
+  background: var(--surface-primary);
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-2xl);
+  max-width: 420px;
+  width: 100%;
+  max-height: 85vh;
+  overflow: hidden;
+  position: relative;
+  transform: scale(0.9) translateY(-20px);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.stable-popup-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-gradient);
+  border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+}
+
+.stable-popup-overlay.visible .stable-popup-content {
+  transform: scale(1) translateY(0);
+}
+
+.stable-popup-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--gray-100);
+  border: none;
+  color: var(--gray-600);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--border-radius-full);
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  font-weight: 600;
+  z-index: 10;
+}
+
+.stable-popup-close:hover {
+  background: var(--gray-200);
+  color: var(--gray-800);
+  transform: scale(1.05);
+}
+
+.stable-popup-content .stop-popup {
+  padding: var(--spacing-lg);
+  padding-top: calc(var(--spacing-lg) + 32px);
+}
+
+.stable-popup-content .stop-popup h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--gray-800);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.stable-popup-content .stop-popup p {
+  margin: var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  line-height: 1.4;
+}
+
+/* Vehicle modal styles */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(20px, 5vw, 24px);
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--bg-primary);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: clamp(18px, 4.5vw, 20px);
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--primary-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-header h3::before {
+  content: '🚌';
+  font-size: clamp(20px, 5vw, 22px);
+  background: none;
+  -webkit-text-fill-color: initial;
+}
+
+.modal-header h3.bus::before {
+  content: '🚌';
+}
+
+.modal-header h3.tram::before {
+  content: '🚊';
+}
+
+.modal-content {
+  padding: clamp(20px, 5vw, 24px);
+  background: var(--bg-primary);
+}
+
+.vehicle-image-section {
+  margin-bottom: clamp(16px, 4vw, 20px);
+}
+
+.vehicle-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-200);
+}
+
+.vehicle-info-grid {
+  display: grid;
+  gap: clamp(16px, 4vw, 20px);
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: clamp(12px, 3vw, 16px);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--gray-100);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--primary-gradient);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+}
+
+.info-item:hover {
+  background: var(--white);
+  border-color: var(--gray-200);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.info-label {
+  font-size: clamp(13px, 3.2vw, 14px);
+  color: var(--text-secondary);
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-right: var(--spacing-sm);
+  line-height: 1.4;
+}
+
+.info-value {
+  font-size: clamp(14px, 3.5vw, 15px);
+  color: var(--text-primary);
+  font-weight: 700;
+  text-align: right;
+  word-break: break-word;
+  line-height: 1.4;
+  background: var(--gray-700);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.accessibility-icon {
+  color: var(--success-color);
+  font-weight: 800;
+  background: var(--success-color);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(15px, 3.8vw, 16px);
+}
+
+.accessibility-icon::before {
+  content: '♿';
+  font-size: clamp(16px, 4vw, 18px);
+  background: none;
+  -webkit-text-fill-color: var(--success-color);
+}
+
+/* Copyable elements in vehicle modal */
+.info-value.copyable {
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.info-value.copyable:hover {
+  transform: scale(1.02);
+  background: var(--primary-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.info-value.copyable:active {
+  transform: scale(0.98);
+}
+
+.info-value.copyable::after {
+  content: '📋';
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  font-size: 12px;
+  transition: all var(--transition-normal);
+  pointer-events: none;
+}
+
+.info-value.copyable:hover::after {
+  opacity: 0.7;
+  right: -24px;
+}
+
+/* Special styling for vehicle ID */
+.info-item:first-child {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border: none;
+}
+
+.info-item:first-child::before {
+  display: none;
+}
+
+.info-item:first-child .info-label,
+.info-item:first-child .info-value {
+  color: white;
+  background: none;
+  -webkit-text-fill-color: white;
+}
+
+.info-item:first-child .info-value.copyable:hover {
+  background: rgba(255, 255, 255, 0.9);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.info-item:first-child:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary);
+}
