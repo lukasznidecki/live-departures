@@ -1,3 +1,3 @@
 #!/bin/bash
 ng build
-wrangler pages deploy dist/location-map-app/browser --project-name mpk-location-map
+wrangler pages deploy dist/live-departures/browser --project-name live-departures

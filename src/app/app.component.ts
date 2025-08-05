@@ -19,7 +19,7 @@ import { Departure, VehicleInfo, TransportStopsService } from './services/data/t
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'location-map-app';
+  title = 'live-departures';
   activeTab: 'tram' | 'bus' | 'map' = 'tram';
   transportTab: 'tram' | 'bus' = 'tram';
   nearestStops: TransportStop[] = [];
@@ -92,7 +92,7 @@ export class AppComponent implements OnInit {
 
   async copyToClipboard(text: string, event: Event) {
     event.stopPropagation();
-    
+
     try {
       const target = event.target as HTMLElement;
       await this.clipboardUtilityService.copyTextToClipboard(text, target);
@@ -103,7 +103,7 @@ export class AppComponent implements OnInit {
 
   onDepartureClick(departure: Departure, event: Event) {
     event.stopPropagation();
-    
+
     if (departure.vehicleNumber && departure.vehicleNumber.trim() !== '') {
       this.showVehicleInfo(departure.vehicleNumber);
     }
@@ -129,7 +129,7 @@ export class AppComponent implements OnInit {
 
   async copyVehicleInfo(text: string, event: Event) {
     event.stopPropagation();
-    
+
     try {
       const target = event.target as HTMLElement;
       await this.clipboardUtilityService.copyTextToClipboard(text, target);

@@ -1,8 +1,8 @@
 {
-  "name": "MPK Location Map",
-  "short_name": "MPK Map",
+  "name": "Live Departures",
+  "short_name": "Live Departures",
   "description": "Find nearby tram stops and track public transport",
-  "version": "1.0.2",
+  "version": "1.0.14",
   "theme_color": "#667eea",
   "background_color": "#fafafa",
   "display": "standalone",
