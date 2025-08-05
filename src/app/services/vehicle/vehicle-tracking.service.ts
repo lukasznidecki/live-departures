@@ -3,6 +3,7 @@ import { interval, Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import { TransportStopsService, Vehicle, VehicleInfo } from '../data/tram-stops.service';
 import { UiStateManagerService } from '../ui/ui-state-manager.service';
+import { ClipboardUtilityService } from '../utilities/clipboard-utility.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,16 +14,18 @@ export class VehicleTrackingService {
   private readonly ANIMATION_DURATION = 800;
   private readonly DISTANCE_THRESHOLD = 1;
   private readonly SMOOTH_FACTOR = 0.1;
-  
+
   private vehicleSubscription?: Subscription;
   private vehicleMarkers = new Map<string, L.Marker>();
   private vehicleAnimations = new Map<string, any>();
   private vehiclePositions = new Map<string, { lat: number; lng: number }>();
   private vehicleInfo = new Map<string, VehicleInfo>();
+  private activeStablePopup: HTMLElement | null = null;
 
   constructor(
     private transportStopsService: TransportStopsService,
-    private uiStateManagerService: UiStateManagerService
+    private uiStateManagerService: UiStateManagerService,
+    private clipboardUtilityService: ClipboardUtilityService
   ) {}
 
   startVehicleTracking(map: L.Map): void {
@@ -45,6 +48,7 @@ export class VehicleTrackingService {
     this.vehicleMarkers.clear();
     this.vehicleAnimations.clear();
     this.vehiclePositions.clear();
+    this.hideStablePopup();
   }
 
   private loadVehicleInfo(): void {
@@ -95,8 +99,8 @@ export class VehicleTrackingService {
   }
 
   private updateVisibleVehicles(
-    vehicles: Vehicle[], 
-    extendedBounds: L.LatLngBounds, 
+    vehicles: Vehicle[],
+    extendedBounds: L.LatLngBounds,
     activeVehicleIds: Set<string>,
     map: L.Map
   ): void {
@@ -114,7 +118,7 @@ export class VehicleTrackingService {
 
   private updateOrCreateVehicleMarker(vehicle: Vehicle, map: L.Map): void {
     const existingMarker = this.vehicleMarkers.get(vehicle.kmk_id);
-    
+
     if (existingMarker) {
       this.updateExistingVehicleMarker(existingMarker, vehicle);
     } else {
@@ -124,17 +128,15 @@ export class VehicleTrackingService {
 
   private updateExistingVehicleMarker(marker: L.Marker, vehicle: Vehicle): void {
     this.animateMarkerToPosition(marker, vehicle);
-    marker.setPopupContent(this.createVehiclePopup(vehicle));
   }
 
   private createNewVehicleMarker(vehicle: Vehicle, map: L.Map): void {
     const icon = this.createOptimizedVehicleIcon(vehicle);
-    const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon })
-      .bindPopup(this.createVehiclePopup(vehicle), {
-        closeOnClick: false,
-        autoClose: false,
-        className: 'vehicle-popup'
-      });
+    const marker = L.marker([vehicle.latitude, vehicle.longitude], { icon });
+
+    marker.on('click', () => {
+      this.showVehicleStablePopup(vehicle, marker, map);
+    });
 
     this.addVehicleEntranceAnimation(marker);
     marker.addTo(map);
@@ -160,7 +162,7 @@ export class VehicleTrackingService {
     const currentLatLng = marker.getLatLng();
     const newLatLng = L.latLng(vehicle.latitude, vehicle.longitude);
     const distance = currentLatLng.distanceTo(newLatLng);
-    
+
     if (distance > this.DISTANCE_THRESHOLD) {
       this.updateVehicleSpeed(marker, currentLatLng, newLatLng);
       this.cancelAnimation(vehicle.kmk_id);
@@ -175,15 +177,15 @@ export class VehicleTrackingService {
     const isBus = vehicle.category === 'bus';
     const icon = isBus ? '🚌' : '🚊';
     const color = isBus ? '#FF9800' : '#4CAF50';
-    
+
     let normalizedBearing = vehicle.bearing - 90;
     if (normalizedBearing < 0) normalizedBearing += 360;
-    
+
     if (normalizedBearing > 90 && normalizedBearing < 270) {
       normalizedBearing = normalizedBearing + 180;
       if (normalizedBearing >= 360) normalizedBearing -= 360;
     }
-    
+
     return L.divIcon({
       className: 'custom-vehicle-marker',
       html: `
@@ -201,16 +203,53 @@ export class VehicleTrackingService {
 
   private createVehiclePopup(vehicle: Vehicle): string {
     const info = this.vehicleInfo.get(vehicle.kmk_id);
-    const lowFloorIcon = info && info.floor === 'low_floor' ? '♿' : '';
     const fullModelName = info ? info.full_model_name : 'Modellinfo nicht verfügbar';
-    
+    const shortModelName = info ? info.short_model_name : '';
+    const isLowFloor = info && info.floor === 'low_floor';
+    const vehicleImagePath = this.getVehicleImagePath(shortModelName);
+
     return `
-      <div class="vehicle-popup">
-        <h3>${vehicle.category === 'bus' ? 'Bus' : 'Straßenbahn'} ${vehicle.route_short_name} ${lowFloorIcon}</h3>
-        <p><strong>Richtung:</strong> ${vehicle.trip_headsign}</p>
-        <p><strong>Modell:</strong> ${fullModelName}</p>
-        <p><strong>Fahrzeug:</strong> <span onclick="navigator.clipboard.writeText('${vehicle.kmk_id}'); const orig = this.innerHTML; const origBg = this.style.background; this.innerHTML='Kopiert!'; this.style.background='#4caf50'; setTimeout(() => {this.innerHTML=orig; this.style.background=origBg;}, 1500)" style="cursor: pointer; background: #e0e0e0; padding: 2px 6px; border-radius: 8px; font-size: 11px; color: #666; transition: all 0.2s ease; user-select: none;" onmouseover="this.style.background='#d0d0d0'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='#e0e0e0'; this.style.transform='scale(1)'" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1.05)'" title="Klicken zum Kopieren">${vehicle.kmk_id}</span></p>
-        <p style="font-size: 12px; color: #666;">Live-Position</p>
+      <div class="modal-header">
+        <h3 class="${vehicle.category}">${vehicle.category === 'bus' ? 'Bus' : 'Straßenbahn'} Informationen</h3>
+      </div>
+      <div class="modal-content">
+        ${vehicleImagePath ? `
+          <div class="vehicle-image-section">
+            <img src="${vehicleImagePath}"
+                 alt="${fullModelName}"
+                 class="vehicle-image"
+                 onerror="this.style.display='none'">
+          </div>
+        ` : ''}
+        <div class="vehicle-info-grid">
+          <div class="info-item">
+            <span class="info-label">Fahrzeug-ID:</span>
+            <span class="info-value copyable"
+                  data-copy-text="${vehicle.kmk_id}"
+                  title="Klicken zum Kopieren">${vehicle.kmk_id}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Linie:</span>
+            <span class="info-value">${vehicle.route_short_name}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Richtung:</span>
+            <span class="info-value">${vehicle.trip_headsign}</span>
+          </div>
+          ${isLowFloor ? `
+            <div class="info-item">
+              <span class="info-label">Barrierefreiheit:</span>
+              <span class="info-value accessibility-icon">♿ Niederflur</span>
+            </div>
+          ` : ''}
+          <div class="info-item">
+            <span class="info-label">Modell:</span>
+            <span class="info-value copyable"
+                  data-copy-text="${fullModelName}"
+                  title="Klicken zum Kopieren">${fullModelName}</span>
+          </div>
+
+        </div>
       </div>
     `;
   }
@@ -224,9 +263,9 @@ export class VehicleTrackingService {
   }
 
   private smoothAnimateMarker(
-    marker: L.Marker, 
-    startLatLng: L.LatLng, 
-    endLatLng: L.LatLng, 
+    marker: L.Marker,
+    startLatLng: L.LatLng,
+    endLatLng: L.LatLng,
     vehicle: Vehicle
   ): void {
     const startTime = performance.now();
@@ -238,15 +277,15 @@ export class VehicleTrackingService {
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / this.ANIMATION_DURATION, 1);
-      
+
       const easedProgress = this.easeOutCubic(progress);
-      
+
       const currentLat = startLat + (deltaLat * easedProgress);
       const currentLng = startLng + (deltaLng * easedProgress);
       const currentLatLng = L.latLng(currentLat, currentLng);
-      
+
       marker.setLatLng(currentLatLng);
-      
+
       if (progress < 1) {
         const animationId = requestAnimationFrame(animate);
         this.vehicleAnimations.set(vehicle.kmk_id, animationId);
@@ -271,19 +310,19 @@ export class VehicleTrackingService {
     const isBus = vehicle.category === 'bus';
     const icon = isBus ? '🚌' : '🚊';
     const color = isBus ? '#FF9800' : '#4CAF50';
-    
+
     let normalizedBearing = vehicle.bearing - 90;
     if (normalizedBearing < 0) normalizedBearing += 360;
-    
+
     if (normalizedBearing > 90 && normalizedBearing < 270) {
       normalizedBearing = normalizedBearing + 180;
       if (normalizedBearing >= 360) normalizedBearing -= 360;
     }
-    
+
     return L.divIcon({
       className: 'custom-vehicle-marker optimized-vehicle',
       html: `
-        <div class="vehicle-icon ${vehicle.category} will-change-transform gpu-accelerated" 
+        <div class="vehicle-icon ${vehicle.category} will-change-transform gpu-accelerated"
              style="transform: rotate(${normalizedBearing}deg) translateZ(0);">
           <div class="vehicle-body" style="background: ${color};">
             <span class="vehicle-emoji">${icon}</span>
@@ -320,12 +359,95 @@ export class VehicleTrackingService {
   private updateVehicleSpeed(marker: L.Marker, currentPos: L.LatLng, newPos: L.LatLng): void {
     const distance = currentPos.distanceTo(newPos);
     const element = marker.getElement();
-    
+
     if (element && distance > 10) {
       element.classList.add('fast-moving');
       setTimeout(() => {
         element.classList.remove('fast-moving');
       }, 2000);
     }
+  }
+
+  private showVehicleStablePopup(vehicle: Vehicle, marker: L.Marker, map: L.Map): void {
+    // Usuń poprzedni popup jeśli istnieje
+    if (this.activeStablePopup) {
+      this.activeStablePopup.remove();
+      this.activeStablePopup = null;
+    }
+
+    // Utwórz popup element
+    const popupElement = document.createElement('div');
+    popupElement.className = 'stable-popup-overlay';
+    popupElement.innerHTML = `
+      <div class="stable-popup-content">
+        <button class="stable-popup-close" aria-label="Close">×</button>
+        ${this.createVehiclePopup(vehicle)}
+      </div>
+    `;
+
+    // Dodaj event listeners
+    const closeButton = popupElement.querySelector('.stable-popup-close');
+    closeButton?.addEventListener('click', () => {
+      this.hideStablePopup();
+    });
+
+    popupElement.addEventListener('click', (e) => {
+      if (e.target === popupElement) {
+        this.hideStablePopup();
+      }
+    });
+
+    // Dodaj event listenery dla kopiowania
+    const copyableElements = popupElement.querySelectorAll('.copyable');
+    copyableElements.forEach(element => {
+      element.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const copyText = (e.target as HTMLElement).getAttribute('data-copy-text');
+        if (copyText) {
+          try {
+            await this.clipboardUtilityService.copyTextToClipboard(copyText, e.target as HTMLElement);
+          } catch (err) {
+            console.error('Failed to copy to clipboard:', err);
+          }
+        }
+      });
+    });
+
+    // Dodaj do DOM
+    document.body.appendChild(popupElement);
+    this.activeStablePopup = popupElement;
+
+    // Animacja wejścia
+    requestAnimationFrame(() => {
+      popupElement.classList.add('visible');
+    });
+  }
+
+  private hideStablePopup(): void {
+    if (this.activeStablePopup) {
+      this.activeStablePopup.classList.remove('visible');
+      setTimeout(() => {
+        if (this.activeStablePopup) {
+          this.activeStablePopup.remove();
+          this.activeStablePopup = null;
+        }
+      }, 300);
+    }
+  }
+
+  private normalizeModelName(modelName: string): string {
+    return modelName
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .replace(/\s+/g, '_')
+      .toLowerCase();
+  }
+
+  private getVehicleImagePath(modelName: string): string | null {
+    if (!modelName) return null;
+
+    const normalizedName = this.normalizeModelName(modelName);
+    const imagePath = `assets/vehicles_pics/${normalizedName}.jpg`;
+
+    return imagePath;
   }
 }
