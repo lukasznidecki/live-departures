@@ -215,10 +215,19 @@ export class VehicleTrackingService {
       <div class="modal-content">
         ${vehicleImagePath ? `
           <div class="vehicle-image-section">
-            <img src="${vehicleImagePath}"
-                 alt="${fullModelName}"
-                 class="vehicle-image"
-                 onerror="this.style.display='none'">
+            <div class="image-loading-container">
+              <div class="image-loading-spinner">
+                <div class="spinner-ring-small"></div>
+                <p class="loading-text-german">Bild wird geladen...</p>
+              </div>
+              <img src="${vehicleImagePath}"
+                   alt="${fullModelName}"
+                   class="vehicle-image"
+                   data-image-id="${vehicle.kmk_id}"
+                   onload="this.parentElement.querySelector('.image-loading-spinner').style.display='none'; this.style.display='block';"
+                   onerror="this.parentElement.querySelector('.image-loading-spinner').innerHTML='<p class=\\'loading-text-german error-text\\'>Kein Bild verfügbar</p>'; this.style.display='none';"
+                   style="display: none;">
+            </div>
           </div>
         ` : ''}
         <div class="vehicle-info-grid">

@@ -2,7 +2,7 @@
   "name": "Live Departures",
   "short_name": "Live Departures",
   "description": "Find nearby tram stops and track public transport",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "theme_color": "#667eea",
   "background_color": "#fafafa",
   "display": "standalone",
