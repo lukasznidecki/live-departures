@@ -15,11 +15,6 @@ A Progressive Web Application (PWA) that displays real-time public transportatio
 - **Stop information** - Detailed departure times and route information
 - **Progressive Web App** - Install on mobile devices for native-like experience
 - **Vehicle photos** - Visual identification of different vehicle types
-- **GTFS compatible** - Ready for any city that provides GTFS data
-
-## 🌍 GTFS Compatibility
-
-This application is designed to work with any city that provides GTFS (General Transit Feed Specification) data. While currently configured for Kraków's MPK system, it can be easily adapted for other cities by updating the GTFS data source.
 
 ## 🚀 Getting Started
 
