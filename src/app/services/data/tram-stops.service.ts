@@ -88,7 +88,7 @@ export interface ApiResponse {
 })
 export class TransportStopsService {
   private readonly apiUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/stops';
-  private readonly vehiclesUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles/active/ttss';
+  private readonly vehiclesUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles/active/gtfs';
   private readonly vehicleInfoUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles';
 
   constructor(
@@ -148,24 +148,24 @@ export class TransportStopsService {
             .map(stopTime => {
               let departureTimestamp: number;
               let departureTime: string;
-              
+
               if (stopTime.predicted_departure_timestamp) {
                 departureTimestamp = stopTime.predicted_departure_timestamp;
                 const predictedDate = new Date(departureTimestamp * 1000);
-                departureTime = predictedDate.toLocaleTimeString('en-GB', { 
-                  hour: '2-digit', 
+                departureTime = predictedDate.toLocaleTimeString('en-GB', {
+                  hour: '2-digit',
                   minute: '2-digit',
-                  hour12: false 
+                  hour12: false
                 });
               } else {
                 const [hours, minutes] = stopTime.planned_departure_time.split(':').map(Number);
                 const plannedDate = new Date(now);
                 plannedDate.setHours(hours, minutes, 0, 0);
-                
+
                 if (plannedDate.getTime() < now.getTime()) {
                   plannedDate.setDate(plannedDate.getDate() + 1);
                 }
-                
+
                 departureTimestamp = Math.floor(plannedDate.getTime() / 1000);
                 departureTime = stopTime.planned_departure_time;
               }
