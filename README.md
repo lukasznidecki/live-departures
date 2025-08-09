@@ -6,7 +6,17 @@ A Progressive Web Application (PWA) that displays real-time public transportatio
 
 **Try the app: [https://live-departures.pages.dev/](https://live-departures.pages.dev/)**
 
-![App Demo](demo.gif)
+
+<p align="center">
+  <img src="demo1.gif" height="75%" alt="Departures View" />
+  &nbsp;
+  &nbsp;
+  &nbsp;
+  &nbsp;
+  &nbsp;
+  &nbsp;
+  <img src="demo2.gif" height="75%" alt="Map View" />
+</p>
 
 ## 🌟 Features
 
