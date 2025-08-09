@@ -35,7 +35,6 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
 ### Testing
-- Run `ng test` to execute unit tests via [Karma](https://karma-runner.github.io)
 - Run `cypress:run` for end-to-end tests
 
 ## 🛠 Technology Stack
