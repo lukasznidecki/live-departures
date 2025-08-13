@@ -11,7 +11,7 @@ A Progressive Web Application (PWA) that displays real-time public transportatio
   <img src="demo1.gif" height="75%" alt="Departures View" />
   &nbsp;
   &nbsp;
-  &nbsp;
+  &nbsp;add
   &nbsp;
   &nbsp;
   &nbsp;
@@ -25,6 +25,12 @@ A Progressive Web Application (PWA) that displays real-time public transportatio
 - **Stop information** - Detailed departure times and route information
 - **Progressive Web App** - Install on mobile devices for native-like experience
 - **Vehicle photos** - Visual identification of different vehicle types
+
+
+## 🌐 Related Projects
+
+- **Backend**: [live-departures-backend](https://github.com/lukasznidecki/live-departures-backend)
+- **Infrastructure**: [live-departures-infra](https://github.com/lukasznidecki/live-departures-infra)
 
 ## 🚀 Getting Started
 
