@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,12 @@ export class MapConfigurationService {
   static readonly DEFAULT_COORDINATES = {
     LATITUDE: 50.0647,
     LONGITUDE: 19.9450
+  } as const;
+
+  static readonly MAPBOX_CONFIG = {
+    get ACCESS_TOKEN() { return environment.mapbox.accessToken; },
+    STYLE_ID: 'mapbox/streets-v12',
+    ATTRIBUTION: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>'
   } as const;
 
   static readonly ICON_SIZES = {

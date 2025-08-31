@@ -1,5 +1,6 @@
 import { Injectable, ElementRef } from '@angular/core';
 import * as L from 'leaflet';
+import { MapConfigurationService } from './map-configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,9 +29,13 @@ export class MapInitializationService {
 
 
   private addTileLayer(map: L.Map): void {
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 19
+    const config = MapConfigurationService.MAPBOX_CONFIG;
+    
+    L.tileLayer(`https://api.mapbox.com/styles/v1/${config.STYLE_ID}/tiles/{z}/{x}/{y}?access_token=${config.ACCESS_TOKEN}`, {
+      attribution: config.ATTRIBUTION,
+      maxZoom: 19,
+      tileSize: 512,
+      zoomOffset: -1
     }).addTo(map);
   }
 

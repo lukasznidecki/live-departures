@@ -18,12 +18,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name:  build and run cypress tests
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Inject environment variables
+        run: node scripts/inject-env.js
+        env:
+          MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application and run tests
         uses: cypress-io/github-action@v6
         with:
-          build: npm run build
           start: npm start
           browser: chrome
+          install: false
 
       - name: Deploy to Cloudflare Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'

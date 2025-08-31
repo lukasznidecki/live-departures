@@ -11,7 +11,7 @@ A Progressive Web Application (PWA) that displays real-time public transportatio
   <img src="demo1.gif" height="75%" alt="Departures View" />
   &nbsp;
   &nbsp;
-  &nbsp;add
+  &nbsp;
   &nbsp;
   &nbsp;
   &nbsp;
