@@ -174,7 +174,7 @@ export class VehicleTrackingService {
   }
 
   private createVehicleIcon(vehicle: Vehicle): L.DivIcon {
-    const isBus = vehicle.category === 'bus';
+    const isBus = this.isBusCategory(vehicle.category);
     const icon = isBus ? '🚌' : '🚊';
     const color = isBus ? '#FF9800' : '#4CAF50';
 
@@ -210,7 +210,7 @@ export class VehicleTrackingService {
 
     return `
       <div class="modal-header">
-        <h3 class="${vehicle.category}">${vehicle.category === 'bus' ? 'Bus' : 'Straßenbahn'} Informationen</h3>
+        <h3 class="${vehicle.category}">${this.isBusCategory(vehicle.category) ? 'Bus' : 'Straßenbahn'} Informationen</h3>
       </div>
       <div class="modal-content">
         ${vehicleImagePath ? `
@@ -316,7 +316,7 @@ export class VehicleTrackingService {
   }
 
   private createOptimizedVehicleIcon(vehicle: Vehicle): L.DivIcon {
-    const isBus = vehicle.category === 'bus';
+    const isBus = this.isBusCategory(vehicle.category);
     const icon = isBus ? '🚌' : '🚊';
     const color = isBus ? '#FF9800' : '#4CAF50';
 
@@ -458,5 +458,9 @@ export class VehicleTrackingService {
     const imagePath = `assets/vehicles_pics/${normalizedName}.jpg`;
 
     return imagePath;
+  }
+
+  private isBusCategory(category: string): boolean {
+    return category === 'bus' || category === 'mobilis';
   }
 }
