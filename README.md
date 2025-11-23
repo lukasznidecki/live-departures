@@ -45,7 +45,7 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## 🛠 Technology Stack
 
-- **Angular 18** - Frontend framework
+- **Angular 19** - Frontend framework
 - **Leaflet** - Interactive maps
 - **Service Worker** - PWA functionality
 - **TypeScript** - Type-safe development
@@ -60,4 +60,4 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ---
 
-*Built with Angular CLI version 17.3.17*
+*Built with Angular CLI version 19.2.19*

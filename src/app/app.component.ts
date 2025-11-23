@@ -12,11 +12,10 @@ import { UiStateManagerService } from './services/ui/ui-state-manager.service';
 import { Departure, VehicleInfo, TransportStopsService } from './services/data/tram-stops.service';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, MapComponent, CommonModule, FormsModule, HttpClientModule],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    imports: [RouterOutlet, MapComponent, CommonModule, FormsModule, HttpClientModule],
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
   title = 'live-departures';

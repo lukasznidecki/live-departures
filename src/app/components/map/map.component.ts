@@ -12,11 +12,10 @@ import { VehicleTrackingService } from '../../services/vehicle/vehicle-tracking.
 import { DepartureLoaderService } from '../../services/data/departure-loader.service';
 
 @Component({
-  selector: 'app-map',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './map.component.html',
-  styleUrls: ['./map.component.css']
+    selector: 'app-map',
+    imports: [CommonModule],
+    templateUrl: './map.component.html',
+    styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
