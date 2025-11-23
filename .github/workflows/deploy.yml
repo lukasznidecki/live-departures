@@ -16,14 +16,6 @@ on:
         required: true
         type: boolean
         default: true
-      environment:
-        description: 'Deployment environment'
-        required: true
-        type: choice
-        options:
-          - preview
-          - production
-        default: preview
 
 jobs:
   ci:
@@ -67,4 +59,3 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: live-departures
           directory: dist/live-departures/browser
-          branch: ${{ github.event_name == 'workflow_dispatch' && inputs.environment == 'production' && 'main' || github.ref_name }}
