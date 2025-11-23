@@ -9,6 +9,21 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to Cloudflare Pages'
+        required: true
+        type: boolean
+        default: true
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+        default: preview
 
 jobs:
   ci:
@@ -21,7 +36,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -43,10 +58,13 @@ jobs:
           install: false
 
       - name: Deploy to Cloudflare Pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: |
+          (github.event_name == 'push' && github.ref == 'refs/heads/master') ||
+          (github.event_name == 'workflow_dispatch' && inputs.deploy)
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: live-departures
           directory: dist/live-departures/browser
+          branch: ${{ github.event_name == 'workflow_dispatch' && inputs.environment == 'production' && 'main' || github.ref_name }}
