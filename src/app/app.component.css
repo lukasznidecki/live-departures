@@ -35,11 +35,9 @@ app-root {
 /* Navigation Bar - Mobile First */
 .navigation-bar {
   grid-area: navigation;
-  background: var(--surface-glass);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(99, 102, 241, 0.85);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   position: relative;
   z-index: 100;
   min-height: 56px;
@@ -63,7 +61,7 @@ app-root {
   height: 3px;
   background: var(--primary-gradient);
   border-radius: 2px 2px 0 0;
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 -2px 8px rgba(102, 126, 234, 0.4);
 }
 
@@ -80,15 +78,7 @@ app-root {
 }
 
 .navigation-bar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 50%, transparent 100%);
-  animation: shimmer 4s ease-in-out infinite;
-  opacity: 0.8;
+  display: none;
 }
 
 @keyframes shimmer {
@@ -114,7 +104,7 @@ app-root {
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, 0.8);
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
   position: relative;
   overflow: hidden;
   min-height: 56px;
@@ -133,76 +123,33 @@ app-root {
   z-index: 2;
 }
 
-.nav-tab::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
-  border-radius: 50%;
-  transition: all var(--transition-normal);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-}
-
-.nav-tab:hover::before {
-  width: 120px;
-  height: 120px;
-  opacity: 1;
-}
-
-.nav-tab {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.8);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
-  position: relative;
-  overflow: hidden;
-  min-height: 56px;
-  font-weight: 500;
-  padding: var(--spacing-xs);
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
 .nav-tab:hover {
   color: rgba(255, 255, 255, 1);
-  transform: translateY(-1px) scale(1.02) translateZ(0);
   background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-tab:active {
+  transform: scale(0.96);
 }
 
 .nav-tab.active {
   color: white;
   background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
   border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-xl), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
   margin: 4px;
 }
 
 .nav-tab.active::before {
-  width: 140px;
-  height: 140px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-  opacity: 1;
+  display: none;
 }
 
 .tab-icon {
   width: 20px;
   height: 20px;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15)) brightness(1.1);
+  transition: transform 0.2s ease-out;
   transform-origin: center;
 }
 
@@ -215,15 +162,12 @@ app-root {
 }
 
 .nav-tab:hover .tab-icon {
-  transform: scale(1.1) rotate(5deg);
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2)) brightness(1.2);
-  animation: iconBounce 0.6s ease-out;
+  transform: scale(1.08);
 }
 
 .nav-tab.active .tab-icon {
-  transform: scale(1.2) rotate(0deg);
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.25)) brightness(1.3);
-  animation: iconPulse 2s ease-in-out infinite;
+  transform: scale(1.15);
+  filter: brightness(1.2);
 }
 
 @keyframes iconBounce {
@@ -264,24 +208,19 @@ app-root {
   grid-row: 1;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(30px) scale(0.95);
-  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              filter 0.3s ease-out,
-              visibility 0s linear 0.4s;
-  filter: blur(6px) brightness(0.8);
+  transform: translateY(12px) scale(0.98);
+  transition: opacity 0.2s ease-out,
+              transform 0.2s ease-out,
+              visibility 0s linear 0.2s;
   overflow: hidden;
-  will-change: transform, opacity, filter;
 }
 
 .content-panel.active {
   opacity: 1;
   visibility: visible;
   transform: translateY(0) scale(1);
-  filter: blur(0) brightness(1);
-  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              filter 0.3s ease-out,
+  transition: opacity 0.2s ease-out,
+              transform 0.2s ease-out,
               visibility 0s linear 0s;
 }
 
@@ -298,7 +237,8 @@ app-root {
     transparent 100%
   );
   padding: clamp(8px, 2.5vw, 16px);
-  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  contain: layout style;
 }
 
 /* Enhanced Scrollbar for Mobile */
@@ -326,8 +266,6 @@ app-root {
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   z-index: 50;
 }
 
@@ -422,8 +360,6 @@ app-root {
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   z-index: 50;
 }
 
@@ -478,57 +414,23 @@ app-root {
   cursor: pointer;
   font-size: clamp(14px, 3.5vw, 16px);
   font-weight: 600;
-  transition: all var(--transition-normal);
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
   position: relative;
   overflow: hidden;
   min-width: 120px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-}
-
-.action-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left var(--transition-slow);
-}
-
-.action-button {
-  padding: clamp(12px, 3vw, 16px) clamp(24px, 6vw, 32px);
-  background: var(--primary-gradient);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-full);
-  cursor: pointer;
-  font-size: clamp(14px, 3.5vw, 16px);
-  font-weight: 600;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  min-width: 120px;
-  box-shadow: var(--shadow-lg);
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 .action-button:hover {
-  transform: translateY(-2px) scale(1.02) translateZ(0);
-}
-
-.action-button:hover::before {
-  left: 100%;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .action-button:active {
-  transform: translateY(0) scale(0.98);
-  transition: all var(--transition-fast);
+  transform: scale(0.96);
+  transition-duration: 0.08s;
 }
 
 /* Stops Grid - Modern Layout */
@@ -536,27 +438,11 @@ app-root {
   display: grid;
   grid-template-columns: 1fr;
   gap: clamp(8px, 2vw, 16px);
-  animation: staggerIn 0.6s ease-out;
+  animation: staggerIn 0.35s ease-out;
   padding-bottom: var(--spacing-lg);
 }
 
 /* Stop Card - Modern Card Design */
-.stop-card {
-  background: var(--surface-primary);
-  border-radius: var(--border-radius-md);
-  border-left: 4px solid var(--primary-color);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px) saturate(150%);
-  -webkit-backdrop-filter: blur(10px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
 .card-content {
   padding: clamp(16px, 4vw, 20px);
 }
@@ -584,28 +470,25 @@ app-root {
   border-radius: var(--border-radius-md);
   border-left: 4px solid var(--primary-color);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, border-left-color 0.15s ease;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px) saturate(150%);
-  -webkit-backdrop-filter: blur(10px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  will-change: transform;
-  transform: translateZ(0);
+  contain: layout style paint;
 }
 
 .stop-card:hover {
-  transform: translateY(-2px) scale(1.005) translateZ(0);
+  transform: translateY(-2px);
   border-left-color: var(--secondary-color);
-  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-md);
 }
 
 .stop-card:active {
-  transform: translateY(0) scale(0.995);
-  transition: all var(--transition-fast);
+  transform: scale(0.98);
+  transition-duration: 0.08s;
 }
 
 .stop-rank {
@@ -677,14 +560,12 @@ app-root {
   font-size: clamp(10px, 2.5vw, 11px);
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-normal);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.12s ease-out;
 }
 
-.direction-tag:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: var(--shadow-md);
+.direction-tag:active {
+  transform: scale(0.95);
 }
 
 /* Inline Loading States */
@@ -801,34 +682,15 @@ app-root {
   justify-content: center;
   color: var(--primary-color);
   cursor: pointer;
-  transition: all var(--transition-normal);
-  flex-shrink: 0;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.expand-button {
-  background: rgba(102, 126, 234, 0.1);
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary-color);
-  cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease;
   flex-shrink: 0;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 .expand-button:hover {
   background: rgba(102, 126, 234, 0.2);
-  transform: scale(1.05) translateZ(0);
+  transform: scale(1.05);
 }
 
 .expand-button.rotated {
@@ -836,18 +698,18 @@ app-root {
 }
 
 .expand-button.rotated:hover {
-  transform: rotate(180deg) scale(1.1);
+  transform: rotate(180deg) scale(1.05);
 }
 
 /* Departures Container */
 .departures-container {
   margin-top: var(--spacing-sm);
-  animation: expandAnimation 0.3s ease-out;
+  animation: expandAnimation 0.25s ease-out;
   overflow: hidden;
 }
 
 .departures-container.collapsing {
-  animation: collapseAnimation 0.3s ease-in forwards;
+  animation: collapseAnimation 0.2s ease-in forwards;
 }
 
 .departures-section {
@@ -919,50 +781,21 @@ app-root {
   border-radius: var(--border-radius-sm);
   border-left: 3px solid var(--primary-color);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all var(--transition-normal);
+  transition: transform 0.12s ease-out, background-color 0.12s ease;
   position: relative;
   overflow: hidden;
   min-height: 44px;
-}
-
-.departure-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transform: translateX(-100%);
-  transition: transform 0.6s ease;
-}
-
-.departure-card {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-areas: "line info time";
-  gap: clamp(8px, 2vw, 12px);
-  align-items: center;
-  padding: clamp(10px, 2.5vw, 14px);
-  background: var(--surface-secondary);
-  border-radius: var(--border-radius-sm);
-  border-left: 3px solid var(--primary-color);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease;
-  position: relative;
-  overflow: hidden;
-  min-height: 44px;
-  will-change: transform;
-  transform: translateZ(0);
+  contain: layout style paint;
 }
 
 .departure-card:hover {
   background: rgba(255, 255, 255, 0.98);
-  transform: translateX(1px) translateZ(0);
+  transform: translateX(2px);
 }
 
-.departure-card:hover::before {
-  transform: translateX(100%);
+.departure-card:active {
+  transform: scale(0.98);
+  transition-duration: 0.06s;
 }
 
 .line-badge {
@@ -977,14 +810,8 @@ app-root {
   text-align: center;
   box-shadow: var(--shadow-sm);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: all var(--transition-normal);
   justify-self: start;
   align-self: center;
-}
-
-.line-badge:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-md);
 }
 
 .departure-info {
@@ -1013,35 +840,17 @@ app-root {
   background: var(--gray-100);
   padding: 2px 6px;
   border-radius: var(--border-radius-sm);
-  transition: all var(--transition-normal);
+  transition: background-color 0.1s ease, transform 0.1s ease;
   cursor: pointer;
   user-select: none;
   display: inline-block;
   width: fit-content;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-}
-
-.vehicle-info {
-  font-size: clamp(9px, 2.3vw, 10px);
-  color: var(--gray-600);
-  background: var(--gray-100);
-  padding: 2px 6px;
-  border-radius: var(--border-radius-sm);
-  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.1s ease;
-  cursor: pointer;
-  user-select: none;
-  display: inline-block;
-  width: fit-content;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 .vehicle-info:hover {
   background: var(--gray-200);
-  transform: scale(1.03) translateZ(0);
 }
 
 .vehicle-info:active {
@@ -1056,16 +865,10 @@ app-root {
   background: rgba(102, 126, 234, 0.1);
   padding: clamp(4px, 1vw, 6px) clamp(6px, 1.5vw, 8px);
   border-radius: var(--border-radius-sm);
-  transition: all var(--transition-normal);
   white-space: nowrap;
   text-align: center;
   justify-self: end;
   align-self: center;
-}
-
-.time-badge:hover {
-  background: rgba(102, 126, 234, 0.2);
-  transform: scale(1.02);
 }
 
 /* Empty State */

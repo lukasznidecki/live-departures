@@ -380,18 +380,10 @@
 
 /* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  .stop-card, .departure-card, .nav-tab {
-    transition: none;
-  }
-  
-  .spinner-ring::before, .spinner-ring::after {
-    animation: none;
-  }
-  
-  .mini-spinner {
-    animation: none;
-    border-top-color: transparent;
-    border-left-color: var(--primary-color);
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
