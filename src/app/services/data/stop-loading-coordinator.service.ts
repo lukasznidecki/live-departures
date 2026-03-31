@@ -36,15 +36,10 @@ export class StopLoadingCoordinatorService {
   }
 
   loadDirectionsForStops(stops: TransportStop[], transportType: 'tram' | 'bus'): void {
-    const requests = stops.map(stop =>
+    stops.forEach(stop => {
       this.transportStopsService.getDirectionsAndDepartures(stop.stop_name, stop.stop_num, transportType).pipe(
         catchError(() => of({ directions: [] as string[], departures: [] as any[] }))
-      )
-    );
-
-    forkJoin(requests).subscribe(results => {
-      results.forEach((result, index) => {
-        const stop = stops[index];
+      ).subscribe(result => {
         stop.directions = result.directions;
         stop.departures = result.departures;
         stop.loadingDirections = false;
