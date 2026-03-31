@@ -52,6 +52,22 @@ export class StopLoadingCoordinatorService {
     });
   }
 
+  refreshStops(stops: TransportStop[], transportType: 'tram' | 'bus'): void {
+    const requests = stops.map(stop =>
+      this.transportStopsService.getDirectionsAndDepartures(stop.stop_name, stop.stop_num, transportType).pipe(
+        catchError(() => of({ directions: stop.directions || [], departures: stop.departures || [] }))
+      )
+    );
+
+    forkJoin(requests).subscribe(results => {
+      results.forEach((result, index) => {
+        const stop = stops[index];
+        stop.directions = result.directions;
+        stop.departures = result.departures;
+      });
+    });
+  }
+
   loadDeparturesForStop(stop: TransportStop, transportType: 'tram' | 'bus'): Observable<any[]> {
     return this.transportStopsService.getDepartures(stop.stop_name, stop.stop_num, transportType);
   }

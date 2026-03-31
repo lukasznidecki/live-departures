@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +17,9 @@ import { Departure, VehicleInfo, TransportStopsService } from './services/data/t
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
+  private autoRefreshInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly AUTO_REFRESH_MS = 60_000;
   title = 'live-departures';
   activeTab: 'tram' | 'bus' | 'map' = 'tram';
   transportTab: 'tram' | 'bus' = 'tram';
@@ -40,6 +42,11 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.setupUiStateSubscription();
     this.loadNearestStops();
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy() {
+    this.stopAutoRefresh();
   }
 
   setActiveTab(tab: 'tram' | 'bus' | 'map') {
@@ -76,6 +83,22 @@ export class AppComponent implements OnInit {
 
   retryLoadStops() {
     this.loadNearestStops();
+  }
+
+  private startAutoRefresh(): void {
+    this.stopAutoRefresh();
+    this.autoRefreshInterval = setInterval(() => {
+      if (this.nearestStops.length > 0 && !this.isLoading) {
+        this.stopLoadingCoordinatorService.refreshStops(this.nearestStops, this.transportTab);
+      }
+    }, this.AUTO_REFRESH_MS);
+  }
+
+  private stopAutoRefresh(): void {
+    if (this.autoRefreshInterval) {
+      clearInterval(this.autoRefreshInterval);
+      this.autoRefreshInterval = null;
+    }
   }
 
   toggleStopExpansion(stopIndex: number) {
