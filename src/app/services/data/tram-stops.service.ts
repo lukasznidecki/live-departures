@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, tap, shareReplay } from 'rxjs/operators';
 import { StopCacheService } from './stop-cache.service';
 import { GeoUtilsService } from '../location/geo-utils.service';
 
@@ -90,6 +90,8 @@ export class TransportStopsService {
   private readonly apiUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/stops';
   private readonly vehiclesUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles/active/gtfs';
   private readonly vehicleInfoUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles';
+  private readonly CACHE_TTL_MS = 30_000;
+  private responseCache = new Map<string, { data: StopTimesResponse; timestamp: number; observable: Observable<StopTimesResponse> }>();
 
   constructor(
     private http: HttpClient,
@@ -113,86 +115,109 @@ export class TransportStopsService {
     );
   }
 
-  getStopTimes(stopName: string, stopNum: string, category: 'tram' | 'bus' = 'tram'): Observable<string[]> {
-    const url = `${this.apiUrl}/${encodeURIComponent(stopName)}/current_stop_times`;
-    return new Observable(observer => {
-      this.http.get<StopTimesResponse>(url).subscribe({
-        next: (response) => {
-          const directions = response.current_stop_times
-            .filter(stopTime => stopTime.category === category && stopTime.stop_num === stopNum)
-            .map(stopTime => stopTime.trip_headsign)
-            .filter((direction, index, array) => array.indexOf(direction) === index);
+  private getCachedStopTimesResponse(stopName: string): Observable<StopTimesResponse> {
+    const cacheKey = stopName;
+    const cached = this.responseCache.get(cacheKey);
+    const now = Date.now();
 
-          observer.next(directions);
-          observer.complete();
-        },
-        error: (err) => {
-          observer.next([]);
-          observer.complete();
-        }
-      });
-    });
+    if (cached && (now - cached.timestamp) < this.CACHE_TTL_MS) {
+      return cached.data ? of(cached.data) : cached.observable;
+    }
+
+    const url = `${this.apiUrl}/${encodeURIComponent(stopName)}/current_stop_times`;
+    const observable = this.http.get<StopTimesResponse>(url).pipe(
+      tap(response => {
+        this.responseCache.set(cacheKey, { data: response, timestamp: Date.now(), observable: null! });
+      }),
+      shareReplay(1)
+    );
+
+    this.responseCache.set(cacheKey, { data: null!, timestamp: now, observable });
+    return observable;
+  }
+
+  getDirectionsAndDepartures(stopName: string, stopNum: string, category: 'tram' | 'bus' = 'tram'): Observable<{ directions: string[]; departures: Departure[] }> {
+    return this.getCachedStopTimesResponse(stopName).pipe(
+      map(response => {
+        const filtered = response.current_stop_times
+          .filter(stopTime => stopTime.category === category && stopTime.stop_num === stopNum);
+
+        const directions = filtered
+          .map(stopTime => stopTime.trip_headsign)
+          .filter((direction, index, array) => array.indexOf(direction) === index);
+
+        const departures = this.parseDepartures(filtered);
+
+        return { directions, departures };
+      })
+    );
+  }
+
+  getStopTimes(stopName: string, stopNum: string, category: 'tram' | 'bus' = 'tram'): Observable<string[]> {
+    return this.getCachedStopTimesResponse(stopName).pipe(
+      map(response => {
+        return response.current_stop_times
+          .filter(stopTime => stopTime.category === category && stopTime.stop_num === stopNum)
+          .map(stopTime => stopTime.trip_headsign)
+          .filter((direction, index, array) => array.indexOf(direction) === index);
+      })
+    );
   }
 
   getDepartures(stopName: string, stopNum: string, category: 'tram' | 'bus' = 'tram'): Observable<Departure[]> {
-    const url = `${this.apiUrl}/${encodeURIComponent(stopName)}/current_stop_times`;
-    return new Observable(observer => {
-      this.http.get<StopTimesResponse>(url).subscribe({
-        next: (response) => {
-          const now = new Date();
-          const currentTimestamp = Math.floor(now.getTime() / 1000);
-          const maxTimestamp = currentTimestamp + (60 * 60);
+    return this.getCachedStopTimesResponse(stopName).pipe(
+      map(response => {
+        const filtered = response.current_stop_times
+          .filter(stopTime => stopTime.category === category && stopTime.stop_num === stopNum);
+        return this.parseDepartures(filtered);
+      })
+    );
+  }
 
-          const departures = response.current_stop_times
-            .filter(stopTime => stopTime.category === category && stopTime.stop_num === stopNum)
-            .map(stopTime => {
-              let departureTimestamp: number;
-              let departureTime: string;
+  private parseDepartures(stopTimes: StopTime[]): Departure[] {
+    const now = new Date();
+    const currentTimestamp = Math.floor(now.getTime() / 1000);
+    const maxTimestamp = currentTimestamp + (60 * 60);
 
-              if (stopTime.predicted_departure_timestamp) {
-                departureTimestamp = stopTime.predicted_departure_timestamp;
-                const predictedDate = new Date(departureTimestamp * 1000);
-                departureTime = predictedDate.toLocaleTimeString('en-GB', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false
-                });
-              } else {
-                const [hours, minutes] = stopTime.planned_departure_time.split(':').map(Number);
-                const plannedDate = new Date(now);
-                plannedDate.setHours(hours, minutes, 0, 0);
+    return stopTimes
+      .map(stopTime => {
+        let departureTimestamp: number;
+        let departureTime: string;
 
-                if (plannedDate.getTime() < now.getTime()) {
-                  plannedDate.setDate(plannedDate.getDate() + 1);
-                }
+        if (stopTime.predicted_departure_timestamp) {
+          departureTimestamp = stopTime.predicted_departure_timestamp;
+          const predictedDate = new Date(departureTimestamp * 1000);
+          departureTime = predictedDate.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+        } else {
+          const [hours, minutes] = stopTime.planned_departure_time.split(':').map(Number);
+          const plannedDate = new Date(now);
+          plannedDate.setHours(hours, minutes, 0, 0);
 
-                departureTimestamp = Math.floor(plannedDate.getTime() / 1000);
-                departureTime = stopTime.planned_departure_time;
-              }
+          if (plannedDate.getTime() < now.getTime()) {
+            plannedDate.setDate(plannedDate.getDate() + 1);
+          }
 
-              const minutesUntil = Math.round((departureTimestamp - currentTimestamp) / 60);
-
-              return {
-                line: stopTime.route_short_name,
-                direction: stopTime.trip_headsign,
-                vehicleNumber: stopTime.kmk_id,
-                departureTime: departureTime,
-                minutesUntilDeparture: minutesUntil,
-                departureTimestamp: departureTimestamp
-              };
-            })
-            .filter(departure => departure.departureTimestamp <= maxTimestamp && departure.minutesUntilDeparture >= 0)
-            .sort((a, b) => a.minutesUntilDeparture - b.minutesUntilDeparture);
-
-          observer.next(departures);
-          observer.complete();
-        },
-        error: (err) => {
-          observer.next([]);
-          observer.complete();
+          departureTimestamp = Math.floor(plannedDate.getTime() / 1000);
+          departureTime = stopTime.planned_departure_time;
         }
-      });
-    });
+
+        const minutesUntil = Math.round((departureTimestamp - currentTimestamp) / 60);
+
+        return {
+          line: stopTime.route_short_name,
+          direction: stopTime.trip_headsign,
+          vehicleNumber: stopTime.kmk_id,
+          departureTime: departureTime,
+          minutesUntilDeparture: minutesUntil,
+          departureTimestamp: departureTimestamp
+        };
+      })
+      .filter(departure => departure.departureTimestamp! <= maxTimestamp && departure.minutesUntilDeparture >= 0)
+      .sort((a, b) => a.minutesUntilDeparture - b.minutesUntilDeparture);
   }
 
   getNearestStops(userLatitude: number, userLongitude: number, maxStops: number = 5, transportType: 'tram' | 'bus' = 'tram'): Observable<TransportStop[]> {

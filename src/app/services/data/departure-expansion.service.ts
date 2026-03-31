@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { of } from 'rxjs';
 import { TransportStopsService, TransportStop } from './tram-stops.service';
 
 @Injectable({
@@ -80,6 +81,9 @@ export class DepartureExpansionService {
   }
 
   private loadDepartures(stop: TransportStop, transportType: 'tram' | 'bus') {
+    if (stop.departures && stop.departures.length > 0) {
+      return of(stop.departures);
+    }
     return this.transportStopsService.getDepartures(stop.stop_name, stop.stop_num, transportType);
   }
 }
