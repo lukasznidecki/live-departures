@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { TransportStopsService, TransportStop } from './tram-stops.service';
 import { GeolocationService, LocationData } from '../location/geolocation.service';
@@ -36,10 +36,18 @@ export class StopLoadingCoordinatorService {
   }
 
   loadDirectionsForStops(stops: TransportStop[], transportType: 'tram' | 'bus'): void {
-    stops.forEach((stop, index) => {
-      this.loadDirectionsForStop(stop, transportType).subscribe({
-        next: (directions) => this.updateStopDirections(stop, directions),
-        error: () => this.handleDirectionsError(stop)
+    const requests = stops.map(stop =>
+      this.transportStopsService.getDirectionsAndDepartures(stop.stop_name, stop.stop_num, transportType).pipe(
+        catchError(() => of({ directions: [] as string[], departures: [] as any[] }))
+      )
+    );
+
+    forkJoin(requests).subscribe(results => {
+      results.forEach((result, index) => {
+        const stop = stops[index];
+        stop.directions = result.directions;
+        stop.departures = result.departures;
+        stop.loadingDirections = false;
       });
     });
   }
@@ -114,19 +122,6 @@ export class StopLoadingCoordinatorService {
     stops.forEach(stop => {
       stop.loadingDirections = true;
     });
-  }
-
-  private loadDirectionsForStop(stop: TransportStop, transportType: 'tram' | 'bus'): Observable<string[]> {
-    return this.transportStopsService.getStopTimes(stop.stop_name, stop.stop_num, transportType);
-  }
-
-  private updateStopDirections(stop: TransportStop, directions: string[]): void {
-    stop.directions = directions;
-    stop.loadingDirections = false;
-  }
-
-  private handleDirectionsError(stop: TransportStop): void {
-    stop.loadingDirections = false;
   }
 
   private handleStopsError(): void {
