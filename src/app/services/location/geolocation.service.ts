@@ -37,7 +37,9 @@ export class GeolocationService {
 
       const emitIfBetter = (locationData: LocationData) => {
         this.cacheLocation(locationData);
-        if (!lastEmitted || this.isSignificantlyDifferent(lastEmitted, locationData) || locationData.accuracy < lastEmitted.accuracy) {
+        // Always emit fresh position over cache; between two fresh positions,
+        // only emit if significantly different or more accurate
+        if (!lastEmitted || lastEmitted === cached || this.isSignificantlyDifferent(lastEmitted, locationData) || locationData.accuracy < lastEmitted.accuracy) {
           lastEmitted = locationData;
           observer.next(locationData);
         }
