@@ -39,6 +39,9 @@ export class MapComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeMap();
+    // Leaflet needs a properly sized container. When loaded via @defer,
+    // the parent panel may still be transitioning to visible.
+    setTimeout(() => this.map.invalidateSize(), 300);
     this.getCurrentLocation();
   }
 

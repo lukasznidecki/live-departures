@@ -17,6 +17,20 @@ export class StopCacheService {
 
   constructor(private http: HttpClient) {
     this.loadFromLocalStorage();
+    this.refreshInBackground();
+  }
+
+  private refreshInBackground(): void {
+    if (this.shouldUpdateCache()) {
+      this.http.get<ApiResponse>(this.apiUrl).subscribe({
+        next: (response) => {
+          this.stopsCache = response.stops;
+          this.isLoaded = true;
+          this.saveToLocalStorage();
+        },
+        error: () => { /* will retry next time */ }
+      });
+    }
   }
 
   loadStops(): Observable<TransportStop[]> {

@@ -139,7 +139,11 @@
     </section>
 
     <section class="content-panel" [class.active]="activeTab === 'map'" role="tabpanel">
-      <app-map></app-map>
+      @defer (when activeTab === 'map') {
+        <app-map></app-map>
+      } @placeholder {
+        <div></div>
+      }
     </section>
   </main>
 
