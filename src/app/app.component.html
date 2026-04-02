@@ -43,7 +43,16 @@
 
   <main class="main-content" role="main">
     <section class="content-panel" [class.active]="activeTab === 'tram' || activeTab === 'bus'" role="tabpanel">
-      <div class="content-wrapper">
+      <div class="content-wrapper"
+           (touchstart)="onTouchStart($event)"
+           (touchmove)="onTouchMove($event)"
+           (touchend)="onTouchEnd()">
+        <div class="pull-indicator" [style.height.px]="pullDistance" [class.refreshing]="isRefreshing">
+          <div class="pull-spinner" *ngIf="pullDistance > 0">
+            <div class="spinner-ring" *ngIf="isRefreshing"></div>
+            <span *ngIf="!isRefreshing">{{ pullDistance >= pullThreshold ? '↻ Loslassen' : '↓ Ziehen zum Aktualisieren' }}</span>
+          </div>
+        </div>
         <div class="loading-state" *ngIf="isLoading">
           <div class="loading-indicator">
             <div class="spinner-ring"></div>

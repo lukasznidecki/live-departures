@@ -238,7 +238,28 @@ app-root {
   );
   padding: clamp(8px, 2.5vw, 16px);
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   contain: layout style;
+}
+
+/* Pull-to-Refresh */
+.pull-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: height 0.2s ease-out;
+  flex-shrink: 0;
+}
+
+.pull-indicator.refreshing {
+  transition: none;
+}
+
+.pull-spinner {
+  color: var(--primary-light, #a5b4fc);
+  font-size: 14px;
+  font-family: system-ui, sans-serif;
 }
 
 /* Enhanced Scrollbar for Mobile */

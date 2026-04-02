@@ -31,6 +31,13 @@ export class AppComponent implements OnInit, OnDestroy {
   selectedVehicleInfo: VehicleInfo | null = null;
   showVehicleInfoModal = false;
 
+  // Pull-to-refresh
+  pullDistance = 0;
+  pullThreshold = 80;
+  isRefreshing = false;
+  private touchStartY = 0;
+  private isPulling = false;
+
   constructor(
     private stopLoadingCoordinatorService: StopLoadingCoordinatorService,
     private clipboardUtilityService: ClipboardUtilityService,
@@ -83,6 +90,41 @@ export class AppComponent implements OnInit, OnDestroy {
 
   retryLoadStops() {
     this.loadNearestStops();
+  }
+
+  onTouchStart(event: TouchEvent): void {
+    const wrapper = event.currentTarget as HTMLElement;
+    if (wrapper.scrollTop === 0 && !this.isLoading && !this.isRefreshing) {
+      this.touchStartY = event.touches[0].clientY;
+      this.isPulling = true;
+    }
+  }
+
+  onTouchMove(event: TouchEvent): void {
+    if (!this.isPulling) return;
+    const delta = event.touches[0].clientY - this.touchStartY;
+    if (delta > 0) {
+      this.pullDistance = Math.min(delta * 0.5, 120);
+    } else {
+      this.isPulling = false;
+      this.pullDistance = 0;
+    }
+  }
+
+  onTouchEnd(): void {
+    if (!this.isPulling) return;
+    this.isPulling = false;
+    if (this.pullDistance >= this.pullThreshold) {
+      this.isRefreshing = true;
+      this.pullDistance = 60;
+      this.loadNearestStops();
+      setTimeout(() => {
+        this.isRefreshing = false;
+        this.pullDistance = 0;
+      }, 1500);
+    } else {
+      this.pullDistance = 0;
+    }
   }
 
   private startAutoRefresh(): void {
