@@ -12,7 +12,13 @@
   <meta name="msapplication-navbutton-color" content="#6366f1">
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#1a1a2e;flex-direction:column">
+      <div style="width:48px;height:48px;border:4px solid rgba(99,102,241,0.3);border-top-color:#6366f1;border-radius:50%;animation:sp .8s linear infinite"></div>
+      <p style="color:#a5b4fc;margin-top:16px;font-family:system-ui,sans-serif;font-size:14px">Laden...</p>
+    </div>
+    <style>@keyframes sp{to{transform:rotate(360deg)}}</style>
+  </app-root>
   <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 </html>
