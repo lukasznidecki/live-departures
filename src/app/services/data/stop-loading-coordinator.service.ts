@@ -41,6 +41,7 @@ export class StopLoadingCoordinatorService {
       const cached = this.transportStopsService.getCachedDirections(stop.stop_name, stop.stop_num, transportType);
       if (cached) {
         stop.directions = cached;
+        stop.loadingDirections = false;
       }
 
       this.transportStopsService.getDirectionsAndDepartures(stop.stop_name, stop.stop_num, transportType).pipe(
