@@ -37,6 +37,13 @@ export class StopLoadingCoordinatorService {
 
   loadDirectionsForStops(stops: TransportStop[], transportType: 'tram' | 'bus'): void {
     stops.forEach(stop => {
+      // Show cached directions instantly while API loads
+      const cached = this.transportStopsService.getCachedDirections(stop.stop_name, stop.stop_num, transportType);
+      if (cached) {
+        stop.directions = cached;
+        stop.loadingDirections = false;
+      }
+
       this.transportStopsService.getDirectionsAndDepartures(stop.stop_name, stop.stop_num, transportType).pipe(
         catchError(() => of({ directions: [] as string[], departures: [] as any[] }))
       ).subscribe(result => {

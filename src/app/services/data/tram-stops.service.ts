@@ -91,6 +91,8 @@ export class TransportStopsService {
   private readonly vehiclesUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles/active/gtfs';
   private readonly vehicleInfoUrl = 'https://mpk-gtfs-proxy.lnidecki.workers.dev/api/vehicles';
   private readonly CACHE_TTL_MS = 30_000;
+  private readonly DIRECTIONS_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 1 month
+  private readonly DIRECTIONS_CACHE_PREFIX = 'directions_';
   private responseCache = new Map<string, { data: StopTimesResponse; timestamp: number; observable: Observable<StopTimesResponse> }>();
 
   constructor(
@@ -146,11 +148,38 @@ export class TransportStopsService {
           .map(stopTime => stopTime.trip_headsign)
           .filter((direction, index, array) => array.indexOf(direction) === index);
 
+        if (directions.length > 0) {
+          this.cacheDirections(stopName, stopNum, category, directions);
+        }
+
         const departures = this.parseDepartures(filtered);
 
         return { directions, departures };
       })
     );
+  }
+
+  getCachedDirections(stopName: string, stopNum: string, category: 'tram' | 'bus'): string[] | null {
+    try {
+      const key = this.DIRECTIONS_CACHE_PREFIX + `${stopName}_${stopNum}_${category}`;
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const entry = JSON.parse(raw);
+      if (Date.now() - entry.timestamp > this.DIRECTIONS_CACHE_TTL_MS) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return entry.directions as string[];
+    } catch {
+      return null;
+    }
+  }
+
+  private cacheDirections(stopName: string, stopNum: string, category: string, directions: string[]): void {
+    try {
+      const key = this.DIRECTIONS_CACHE_PREFIX + `${stopName}_${stopNum}_${category}`;
+      localStorage.setItem(key, JSON.stringify({ directions, timestamp: Date.now() }));
+    } catch { /* quota exceeded – ignore */ }
   }
 
   getStopTimes(stopName: string, stopNum: string, category: 'tram' | 'bus' = 'tram'): Observable<string[]> {
