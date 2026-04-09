@@ -8,7 +8,7 @@ export interface LocationData {
 }
 
 const LOCATION_CACHE_KEY = 'lastKnownLocation';
-const CACHE_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
+const CACHE_MAX_AGE_MS = 5 * 60 * 1000; // 5 minutes
 const SIGNIFICANT_DISTANCE_M = 200;
 
 @Injectable({
@@ -37,8 +37,7 @@ export class GeolocationService {
 
       const emitIfBetter = (locationData: LocationData) => {
         this.cacheLocation(locationData);
-        // Always emit fresh position over cache; between two fresh positions,
-        // only emit if significantly different or more accurate
+        // Always emit: first coarse, then precise — like Google Maps
         if (!lastEmitted || lastEmitted === cached || this.isSignificantlyDifferent(lastEmitted, locationData) || locationData.accuracy < lastEmitted.accuracy) {
           lastEmitted = locationData;
           observer.next(locationData);
@@ -72,7 +71,7 @@ export class GeolocationService {
         {
           enableHighAccuracy: false,
           timeout: 3000,
-          maximumAge: 300000
+          maximumAge: 30000
         }
       );
 
@@ -85,8 +84,8 @@ export class GeolocationService {
         () => onComplete(),
         {
           enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 60000
+          timeout: 8000,
+          maximumAge: 0
         }
       );
     });
