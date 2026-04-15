@@ -8,7 +8,6 @@ export interface LocationData {
 }
 
 const LOCATION_CACHE_KEY = 'lastKnownLocation';
-const CACHE_MAX_AGE_MS = 5 * 60 * 1000; // 5 minutes
 const SIGNIFICANT_DISTANCE_M = 200;
 
 @Injectable({
@@ -91,15 +90,11 @@ export class GeolocationService {
     });
   }
 
-  private getCachedLocation(): LocationData | null {
+  getCachedLocation(): LocationData | null {
     try {
       const raw = localStorage.getItem(LOCATION_CACHE_KEY);
       if (!raw) return null;
       const entry = JSON.parse(raw);
-      if (Date.now() - entry.timestamp > CACHE_MAX_AGE_MS) {
-        localStorage.removeItem(LOCATION_CACHE_KEY);
-        return null;
-      }
       return entry.location as LocationData;
     } catch {
       return null;
