@@ -39,6 +39,9 @@ jobs:
         env:
           MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
 
+      - name: Run unit tests
+        run: npx ng test --watch=false --browsers=ChromeHeadless
+
       - name: Build application
         run: npm run build
 

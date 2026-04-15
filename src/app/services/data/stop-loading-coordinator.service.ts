@@ -21,11 +21,19 @@ export class StopLoadingCoordinatorService {
   ) {}
 
   loadNearestStops(transportType: 'tram' | 'bus'): Observable<TransportStop[]> {
-    this.initializeLoadingProcess();
-    
+    const hasCachedLocation = this.geolocationService.getCachedLocation() !== null;
+
+    if (!hasCachedLocation) {
+      this.initializeLoadingProcess();
+    } else {
+      this.uiStateManager.setErrorState(null);
+    }
+
     return this.geolocationService.getCurrentPosition().pipe(
-      switchMap((position: LocationData) => {
-        this.updateLocationLoadingState();
+      switchMap((position: LocationData, index: number) => {
+        if (index === 0 && !hasCachedLocation) {
+          this.updateLocationLoadingState();
+        }
         return this.loadStopsForLocation(position, transportType);
       }),
       catchError(() => {
