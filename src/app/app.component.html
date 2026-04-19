@@ -41,6 +41,26 @@
     </nav>
   </header>
 
+  <!-- Location Status Growl -->
+  <div class="location-growl"
+       *ngIf="locationStatus"
+       [class.growl-updating]="locationStatus === 'updating'"
+       [class.growl-cached]="locationStatus === 'cached'"
+       [class.growl-imprecise]="locationStatus === 'imprecise'"
+       [class.growl-precise]="locationStatus === 'precise'"
+       role="status"
+       aria-live="polite">
+    <div class="growl-icon" aria-hidden="true">
+      <svg *ngIf="locationStatus === 'updating' || locationStatus === 'cached' || locationStatus === 'imprecise'" class="growl-spinner-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2v4m0 12v4m-8-10H0m24 0h-4m-2.34-7.66l-2.83 2.83M7.17 16.83l-2.83 2.83m0-14.14l2.83 2.83m9.66 9.66l2.83 2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <svg *ngIf="locationStatus === 'precise'" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <span class="growl-message">{{ locationMessage }}</span>
+  </div>
+
   <main class="main-content" role="main">
     <section class="content-panel" [class.active]="activeTab === 'tram' || activeTab === 'bus'" role="tabpanel">
       <div class="content-wrapper"

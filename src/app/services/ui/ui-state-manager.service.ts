@@ -15,6 +15,14 @@ export interface VehicleSelectionState {
   selectedVehicleId: string | null;
 }
 
+export type LocationStatusType = 'updating' | 'cached' | 'imprecise' | 'precise' | null;
+
+export interface LocationStatus {
+  type: LocationStatusType;
+  message: string;
+  accuracy?: number;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +40,11 @@ export class UiStateManagerService {
 
   private readonly vehicleSelectionState$ = new BehaviorSubject<VehicleSelectionState>({
     selectedVehicleId: null
+  });
+
+  private readonly locationStatus$ = new BehaviorSubject<LocationStatus>({
+    type: null,
+    message: ''
   });
 
 
@@ -59,6 +72,18 @@ export class UiStateManagerService {
 
   selectVehicle(vehicleId: string | null): void {
     this.vehicleSelectionState$.next({ selectedVehicleId: vehicleId });
+  }
+
+  getLocationStatus() {
+    return this.locationStatus$.asObservable();
+  }
+
+  setLocationStatus(status: LocationStatus): void {
+    this.locationStatus$.next(status);
+  }
+
+  clearLocationStatus(): void {
+    this.locationStatus$.next({ type: null, message: '' });
   }
 
 }

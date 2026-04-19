@@ -8,7 +8,7 @@ import { TransportStop } from './services/data/tram-stops.service';
 import { StopLoadingCoordinatorService } from './services/data/stop-loading-coordinator.service';
 import { ClipboardUtilityService } from './services/utilities/clipboard-utility.service';
 import { DepartureExpansionService } from './services/data/departure-expansion.service';
-import { UiStateManagerService } from './services/ui/ui-state-manager.service';
+import { UiStateManagerService, LocationStatus, LocationStatusType } from './services/ui/ui-state-manager.service';
 import { Departure, VehicleInfo, TransportStopsService } from './services/data/tram-stops.service';
 
 @Component({
@@ -30,6 +30,11 @@ export class AppComponent implements OnInit, OnDestroy {
   loadingMessage = '';
   selectedVehicleInfo: VehicleInfo | null = null;
   showVehicleInfoModal = false;
+
+  // Location status growl
+  locationStatus: LocationStatusType = null;
+  locationMessage = '';
+  private locationStatusDismissTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Pull-to-refresh
   pullDistance = 0;
@@ -85,6 +90,23 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.uiStateManagerService.getErrorState().subscribe(errorState => {
       this.error = errorState.error;
+    });
+
+    this.uiStateManagerService.getLocationStatus().subscribe(status => {
+      this.locationStatus = status.type;
+      this.locationMessage = status.message;
+
+      if (this.locationStatusDismissTimer) {
+        clearTimeout(this.locationStatusDismissTimer);
+        this.locationStatusDismissTimer = null;
+      }
+
+      if (status.type === 'precise') {
+        this.locationStatusDismissTimer = setTimeout(() => {
+          this.locationStatus = null;
+          this.locationMessage = '';
+        }, 3000);
+      }
     });
   }
 

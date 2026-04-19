@@ -29,15 +29,22 @@ export class StopLoadingCoordinatorService {
       this.uiStateManager.setErrorState(null);
     }
 
+    this.uiStateManager.setLocationStatus({
+      type: 'updating',
+      message: 'Standort wird ermittelt…'
+    });
+
     return this.geolocationService.getCurrentPosition().pipe(
       switchMap((position: LocationData, index: number) => {
         if (index === 0 && !hasCachedLocation) {
           this.updateLocationLoadingState();
         }
+        this.emitLocationStatus(position, index);
         return this.loadStopsForLocation(position, transportType);
       }),
       catchError(() => {
         this.handleLocationError();
+        this.uiStateManager.clearLocationStatus();
         return of([]);
       })
     );
@@ -166,5 +173,31 @@ export class StopLoadingCoordinatorService {
       isLoadingLocation: false,
       loadingMessage: ''
     });
+  }
+
+  private emitLocationStatus(position: LocationData, emissionIndex: number): void {
+    const cached = this.geolocationService.getCachedLocation();
+    const isCached = emissionIndex === 0 && cached &&
+      cached.latitude === position.latitude && cached.longitude === position.longitude;
+
+    if (isCached) {
+      this.uiStateManager.setLocationStatus({
+        type: 'cached',
+        message: 'Gespeicherter Standort – wird aktualisiert…',
+        accuracy: position.accuracy
+      });
+    } else if (position.accuracy > 100) {
+      this.uiStateManager.setLocationStatus({
+        type: 'imprecise',
+        message: `Standort ungenau (±${Math.round(position.accuracy)}m) – wird verfeinert…`,
+        accuracy: position.accuracy
+      });
+    } else {
+      this.uiStateManager.setLocationStatus({
+        type: 'precise',
+        message: `Standort genau (±${Math.round(position.accuracy)}m)`,
+        accuracy: position.accuracy
+      });
+    }
   }
 }
